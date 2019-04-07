@@ -122,7 +122,7 @@ class GenreCNN:
         self.sess = sess
 
         try:
-            self.saver.restore(self.sess, tf.train.latest_checkpoint('saved_models/'))
+            self.saver.restore(self.sess, tf.train.latest_checkpoint(self.save_path))
             print('*    reloaded *')
         except:
             sess.run(tf.global_variables_initializer())
