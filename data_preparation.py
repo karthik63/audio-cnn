@@ -88,7 +88,7 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
 
 if __name__ == '__main__':
 
-    X_train, X_test, Y_train, Y_test = extract_ts('../../more-data')
+    X_train, X_test, Y_train, Y_test = extract_ts('../more-data')
 
     print('oo')
 
