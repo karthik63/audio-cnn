@@ -19,7 +19,7 @@ class GenreCNN:
                  batch_size=5,
                  max_itrns=100,
                  n_classes=4,
-                 save_path='saved_models'):
+                 save_path='saved_models_genre'):
 
         self.mel = mel
         self.stft = stft
