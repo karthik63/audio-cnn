@@ -58,7 +58,7 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
             # TODO changed some shit
 
             if song_timeseries.shape[0] > time_limit:
-                song_timeseries = song_timeseries[time_limit:time_limit*2]
+                song_timeseries = song_timeseries[: time_limit]
 
             elif song_timeseries.shape[0] < time_limit:
 
