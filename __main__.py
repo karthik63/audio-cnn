@@ -17,7 +17,7 @@ class GenreCNN:
     def __init__(self, preprocess=False, class_names=None,
                  mel=True, stft=False,
                  batch_size=5,
-                 max_itrns=100,
+                 max_itrns=10000,
                  n_classes=4,
                  save_path='saved_models_genre'):
 
