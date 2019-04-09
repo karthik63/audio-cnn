@@ -223,10 +223,10 @@ if __name__ == '__main__':
 
     bs = 5
 
-    X_tr = np.load('X_train.npy')
-    X_te = np.load('X_test.npy')
-    Y_tr = np.load('Y_train.npy')
-    Y_te = np.load('Y_test.npy')
+    X_tr = np.load('data/indian_X_train.npy')
+    X_te = np.load('data/indian_X_test.npy')
+    Y_tr = np.load('data/indian_Y_train.npy')
+    Y_te = np.load('data/indian_Y_test.npy')
 
     cn = GenreCNN(batch_size=bs)
 
