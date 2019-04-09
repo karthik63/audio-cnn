@@ -51,33 +51,40 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
 
         for (si, song) in enumerate(os.listdir(path)):
 
-            print(' * {} {} * '.format(genre, song))
 
-            song_timeseries = lb.load(os.path.join(path, song))[0].astype(np.float32)
 
-            # TODO changed some shit
+            try:
 
-            if song_timeseries.shape[0] > time_limit:
-                song_timeseries = song_timeseries[: time_limit]
+                song_timeseries = lb.load(os.path.join(path, song))[0].astype(np.float32)
 
-            elif song_timeseries.shape[0] < time_limit:
+                # TODO changed some shit
 
-                while song_timeseries.shape[0] < time_limit:
-                    song_timeseries = np.hstack((song_timeseries, song_timeseries))
+                if song_timeseries.shape[0] > time_limit:
+                    song_timeseries = song_timeseries[: time_limit]
 
-                song_timeseries = song_timeseries[:time_limit]
+                elif song_timeseries.shape[0] < time_limit:
 
-            if si < n_songs_train_per_class[gi]:
-                X_train[train_index] = song_timeseries
-                Y_train[train_index] = gi
+                    while song_timeseries.shape[0] < time_limit:
+                        song_timeseries = np.hstack((song_timeseries, song_timeseries))
 
-                train_index += 1
+                    song_timeseries = song_timeseries[:time_limit]
 
-            else:
-                X_test[test_index] = song_timeseries
-                Y_test[test_index] = gi
+                if si < n_songs_train_per_class[gi]:
+                    X_train[train_index] = song_timeseries
+                    Y_train[train_index] = gi
 
-                test_index += 1
+                    train_index += 1
+
+                else:
+                    X_test[test_index] = song_timeseries
+                    Y_test[test_index] = gi
+
+                    test_index += 1
+
+                print(' * {} {} * '.format(genre, song))
+            except:
+                print('couldnt load song')
+
 
     np.save('data/indian_30_X_train.npy', X_train)
     np.save('data/indian_30_Y_train.npy', Y_train)
