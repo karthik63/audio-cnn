@@ -79,16 +79,16 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
 
                 test_index += 1
 
-    np.save('X_train.npy', X_train)
-    np.save('Y_train.npy', Y_train)
-    np.save('X_test.npy', X_test)
-    np.save('Y_test.npy', Y_test)
+    np.save('data/indian_30_X_train.npy', X_train)
+    np.save('data/indian_30_Y_train.npy', Y_train)
+    np.save('data/indian_30_X_test.npy', X_test)
+    np.save('data/indian_30_Y_test.npy', Y_test)
 
     return X_train, X_test, Y_train, Y_test
 
 if __name__ == '__main__':
 
-    X_train, X_test, Y_train, Y_test = extract_ts('../more_data')
+    X_train, X_test, Y_train, Y_test = extract_ts('../indian_cropped')
 
     print('oo')
 
