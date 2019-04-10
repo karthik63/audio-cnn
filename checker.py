@@ -9,3 +9,5 @@ import librosa as lb
 g = lb.load('petta.wav')
 
 print(g[1])
+
+indian_fake_Y_test.npy
