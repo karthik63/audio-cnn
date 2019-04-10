@@ -250,8 +250,8 @@ if __name__ == '__main__':
 
     Y_te = Y_te[:n_te - n_te%bs]
 
-    # cn.fit(X_tr, Y_tr, X_te, Y_te)
-    cn.build_model()
+    cn.fit(X_tr, Y_tr, X_te, Y_te)
+    # cn.build_model()
     prediction = cn.predict(X_te)
     ac = cn.get_accuracy(Y_te, prediction)
 
