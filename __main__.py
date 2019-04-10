@@ -17,7 +17,7 @@ class GenreCNN:
 
     def __init__(self, preprocess=False, class_names=None,
                  mel=True, stft=False,
-                 batch_size=5,
+                 batch_size=20,
                  max_itrns=10000,
                  n_classes=4,
                  save_path='saved_models_indian_3'):
@@ -145,10 +145,13 @@ class GenreCNN:
                 self.saver.save(sess, os.path.join(self.save_path, 'model.ckpt'),global_step=ei)
 
 
-            if (ei + 1) % 50 == 0 and np.any(X_te) and np.any(Y_te):
+            if (ei + 1) % 10 == 0 and np.any(X_te) and np.any(Y_te):
                 prediction = cn.predict(X_te)
                 ac = cn.get_accuracy(Y_te, prediction)
                 print(ac)
+
+                cm = cn.get_cm(Y_te, prediction)
+                print(cm)
 
         coord.request_stop()
         coord.join(enqueue_threads)
