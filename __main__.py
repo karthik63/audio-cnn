@@ -20,7 +20,7 @@ class GenreCNN:
                  batch_size=20,
                  max_itrns=10000,
                  n_classes=4,
-                 save_path='saved_models_indian_3'):
+                 save_path='saved_models_indian_3_bs_20'):
 
         self.mel = mel
         self.stft = stft
