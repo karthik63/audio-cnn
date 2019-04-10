@@ -220,7 +220,7 @@ class GenreCNN:
     def get_cm(self, y_true, y_pred):
 
         cm = sklearn.metrics.confusion_matrix(y_true, y_pred)
-        print(cm)
+        return cm
 
 if __name__ == '__main__':
 
@@ -245,5 +245,7 @@ if __name__ == '__main__':
     ac = cn.get_accuracy(Y_te, prediction)
 
     cm = cn.get_cm(Y_te, prediction)
+    
+    print(cm)
 
     print(ac)
