@@ -12,6 +12,7 @@ from data_preparation import *
 np.random.seed(1234)
 tf.set_random_seed(1234)
 
+tracking = True
 
 class GenreCNN:
 
@@ -19,8 +20,8 @@ class GenreCNN:
                  mel=True, stft=False,
                  batch_size=5,
                  max_itrns=3000,
-                 n_classes=2,
-                 save_path='saved_models_indian_2_segmented'):
+                 n_classes=3,
+                 save_path='saved_models_indian_3_harris'):
 
         self.mel = mel
         self.stft = stft
@@ -37,8 +38,13 @@ class GenreCNN:
 
     @staticmethod
     def extract_spectrogram(ts_data, ):
-
+        global tracking
         mel_sg = lb.feature.melspectrogram(ts_data)
+
+        if tracking:
+            tracking = False
+            print(mel_sg.shape)
+
         return mel_sg
 
     @staticmethod
@@ -242,10 +248,10 @@ if __name__ == '__main__':
 
     bs = 5
 
-    X_tr = np.load('data/indian_2_segmented_X_train.npy')
-    X_te = np.load('data/indian_2_segmented_X_test.npy')
-    Y_tr = np.load('data/indian_2_segmented_Y_train.npy')
-    Y_te = np.load('data/indian_2_segmented_Y_test.npy')
+    X_tr = np.load('data/indian_3_harris_X_train.npy')
+    X_te = np.load('data/indian_3_harris_X_test.npy')
+    Y_tr = np.load('data/indian_3_harris_Y_train.npy')
+    Y_te = np.load('data/indian_3_harris_Y_test.npy')
 
     cn = GenreCNN(batch_size=bs)
 

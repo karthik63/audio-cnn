@@ -53,8 +53,8 @@ def extract_ts_multiple(base_directory, train_ratio = .7, time_limit=661794):
     print(X, X.shape)
     print(Y, Y.shape)
 
-    np.save('data/indian_2_segmented_X_train.npy', X)
-    np.save('data/indian_2_segmented_Y_train.npy', Y)
+    np.save('data/indian_3_harris_segmented_X_train.npy', X)
+    np.save('data/indian_3_harris_segmented_Y_train.npy', Y)
 
     ############################################################################################
 
@@ -100,8 +100,8 @@ def extract_ts_multiple(base_directory, train_ratio = .7, time_limit=661794):
     print(X, X.shape)
     print(Y, Y.shape)
 
-    np.save('data/indian_2_segmented_X_test.npy', X)
-    np.save('data/indian_2_segmented_Y_test.npy', Y)
+    np.save('data/indian_3_harris_segmented_X_test.npy', X)
+    np.save('data/indian_3_harris_segmented_Y_test.npy', Y)
 
 
 def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
@@ -185,18 +185,18 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
                 print('couldnt load song')
 
 
-    np.save('data/indian_2_X_train.npy', X_train)
-    np.save('data/indian_2_Y_train.npy', Y_train)
-    np.save('data/indian_2_X_test.npy', X_test)
-    np.save('data/indian_2_Y_test.npy', Y_test)
+    np.save('data/indian_3_harris_X_train.npy', X_train)
+    np.save('data/indian_3_harris_Y_train.npy', Y_train)
+    np.save('data/indian_3_harris_X_test.npy', X_test)
+    np.save('data/indian_3_harris_Y_test.npy', Y_test)
 
     return X_train, X_test, Y_train, Y_test
 
 if __name__ == '__main__':
 
-    # X_train, X_test, Y_train, Y_test = extract_ts('../indian_2')
+    X_train, X_test, Y_train, Y_test = extract_ts('../indian_3_harris')
 
-    extract_ts_multiple('../indian_2_segmented')
+    # extract_ts_multiple('../indian_2_segmented')
 
     print('oo')
 
