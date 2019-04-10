@@ -6,6 +6,7 @@ import math
 from numba.targets.arraymath import np_all
 import sklearn
 from tensorflow.python.training import optimizer
+import matplotlib.pyplot as plt
 
 from data_preparation import *
 np.random.seed(1234)
@@ -220,6 +221,12 @@ class GenreCNN:
     def get_cm(self, y_true, y_pred):
 
         cm = sklearn.metrics.confusion_matrix(y_true, y_pred)
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+
+        plt.imshow(cm, cmap=plt.cm.Oranges)
+        plt.imsave('c.png', cm, cmap=plt.cm.Oranges)
+        plt.show()
+
         return cm
 
 if __name__ == '__main__':
@@ -245,7 +252,7 @@ if __name__ == '__main__':
     ac = cn.get_accuracy(Y_te, prediction)
 
     cm = cn.get_cm(Y_te, prediction)
-    
+
     print(cm)
 
     print(ac)
