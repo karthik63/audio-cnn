@@ -10,4 +10,4 @@ g = lb.load('petta.wav')
 
 print(g[1])
 
-indian_fake_Y_test.npy
+lb.output.write_wav('song.wav', np.load('data/indian_fake_X_test.npy')[18], sr=22050)

@@ -53,8 +53,8 @@ def extract_ts_multiple(base_directory, train_ratio = .7, time_limit=661794):
     print(X, X.shape)
     print(Y, Y.shape)
 
-    np.save('data/indian_fake_X_train.npy', X)
-    np.save('data/indian_fake_Y_train.npy', Y)
+    np.save('data/indian_2_segmented_X_train.npy', X)
+    np.save('data/indian_2_segmented_Y_train.npy', Y)
 
     ############################################################################################
 
@@ -100,8 +100,8 @@ def extract_ts_multiple(base_directory, train_ratio = .7, time_limit=661794):
     print(X, X.shape)
     print(Y, Y.shape)
 
-    np.save('data/indian_fake_X_test.npy', X)
-    np.save('data/indian_fake_Y_test.npy', Y)
+    np.save('data/indian_2_segmented_X_test.npy', X)
+    np.save('data/indian_2_segmented_Y_test.npy', Y)
 
 
 def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
@@ -196,7 +196,7 @@ if __name__ == '__main__':
 
     # X_train, X_test, Y_train, Y_test = extract_ts('../indian_2')
 
-    extract_ts_multiple('indian_fake')
+    extract_ts_multiple('../indian_2_segmented')
 
     print('oo')
 

@@ -20,7 +20,7 @@ class GenreCNN:
                  batch_size=5,
                  max_itrns=3000,
                  n_classes=2,
-                 save_path='saved_models_indian_2_bs_20'):
+                 save_path='saved_models_indian_2_segmented'):
 
         self.mel = mel
         self.stft = stft
@@ -140,7 +140,7 @@ class GenreCNN:
 
             print("loss: {}, batch {}".format(loss, ei))
 
-            if ((ei + 1) % 10 == 0):
+            if ((ei + 1) % 1000 == 0):
                 print(' * saaved * ', ei)
                 self.saver.save(sess, os.path.join(self.save_path, 'model.ckpt'),global_step=ei)
 
@@ -152,6 +152,9 @@ class GenreCNN:
 
                 cm = cn.get_cm(Y_te, prediction)
                 print(cm)
+
+                print(sklearn.metrics.f1_score(Y_te, prediction, average='micro'), ' micro')
+                print(sklearn.metrics.f1_score(Y_te, prediction, average='macro'), ' macro')
 
         coord.request_stop()
         coord.join(enqueue_threads)
@@ -239,10 +242,10 @@ if __name__ == '__main__':
 
     bs = 5
 
-    X_tr = np.load('data/indian_2_X_train.npy')
-    X_te = np.load('data/indian_2_X_test.npy')
-    Y_tr = np.load('data/indian_2_Y_train.npy')
-    Y_te = np.load('data/indian_2_Y_test.npy')
+    X_tr = np.load('data/indian_2_segmented_X_train.npy')
+    X_te = np.load('data/indian_2_segmented_X_test.npy')
+    Y_tr = np.load('data/indian_2_segmented_Y_train.npy')
+    Y_te = np.load('data/indian_2_segmented_Y_test.npy')
 
     cn = GenreCNN(batch_size=bs)
 
