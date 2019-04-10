@@ -182,7 +182,7 @@ class GenreCNN:
 
         if self.sess == None:
             self.sess = tf.Session()
-            self.saver.restore(self.sess, tf.train.latest_checkpoint('saved_models/'))
+            self.saver.restore(self.sess, tf.train.latest_checkpoint(self.save_path))
             print('* reloaded *')
 
         if self.mel:
