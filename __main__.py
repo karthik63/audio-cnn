@@ -18,9 +18,9 @@ class GenreCNN:
     def __init__(self, preprocess=False, class_names=None,
                  mel=True, stft=False,
                  batch_size=20,
-                 max_itrns=10000,
-                 n_classes=4,
-                 save_path='saved_models_indian_3_bs_20'):
+                 max_itrns=3000,
+                 n_classes=2,
+                 save_path='saved_models_indian_2_bs_20'):
 
         self.mel = mel
         self.stft = stft
@@ -239,10 +239,10 @@ if __name__ == '__main__':
 
     bs = 5
 
-    X_tr = np.load('data/indian_3_X_train.npy')
-    X_te = np.load('data/indian_3_X_test.npy')
-    Y_tr = np.load('data/indian_3_Y_train.npy')
-    Y_te = np.load('data/indian_3_Y_test.npy')
+    X_tr = np.load('data/indian_2_X_train.npy')
+    X_te = np.load('data/indian_2_X_test.npy')
+    Y_tr = np.load('data/indian_2_Y_train.npy')
+    Y_te = np.load('data/indian_2_Y_test.npy')
 
     cn = GenreCNN(batch_size=bs)
 

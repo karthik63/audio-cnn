@@ -86,16 +86,16 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
                 print('couldnt load song')
 
 
-    np.save('data/indian_3_X_train.npy', X_train)
-    np.save('data/indian_3_Y_train.npy', Y_train)
-    np.save('data/indian_3_X_test.npy', X_test)
-    np.save('data/indian_3_Y_test.npy', Y_test)
+    np.save('data/indian_2_X_train.npy', X_train)
+    np.save('data/indian_2_Y_train.npy', Y_train)
+    np.save('data/indian_2_X_test.npy', X_test)
+    np.save('data/indian_2_Y_test.npy', Y_test)
 
     return X_train, X_test, Y_train, Y_test
 
 if __name__ == '__main__':
 
-    X_train, X_test, Y_train, Y_test = extract_ts('../indian_3_class')
+    X_train, X_test, Y_train, Y_test = extract_ts('../indian_2')
 
     print('oo')
 
