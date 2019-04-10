@@ -19,7 +19,7 @@ class GenreCNN:
                  batch_size=5,
                  max_itrns=10000,
                  n_classes=4,
-                 save_path='saved_models_indian_30'):
+                 save_path='saved_models_indian'):
 
         self.mel = mel
         self.stft = stft
@@ -217,16 +217,21 @@ class GenreCNN:
 
         return acc
 
+    def get_cm(self, y_true, y_pred):
+
+        cm = sklearn.metrics.confusion_matrix(y_true, y_pred)
+        print(cm)
+
 if __name__ == '__main__':
 
     # X_train, X_test, Y_train, Y_test = extract_ts('../mydata')
 
     bs = 5
 
-    X_tr = np.load('data/indian_30_X_train.npy')
-    X_te = np.load('data/indian_30_X_test.npy')
-    Y_tr = np.load('data/indian_30_Y_train.npy')
-    Y_te = np.load('data/indian_30_Y_test.npy')
+    X_tr = np.load('data/indian_X_train.npy')
+    X_te = np.load('data/indian_X_test.npy')
+    Y_tr = np.load('data/indian_Y_train.npy')
+    Y_te = np.load('data/indian_Y_test.npy')
 
     cn = GenreCNN(batch_size=bs)
 
@@ -234,9 +239,11 @@ if __name__ == '__main__':
 
     Y_te = Y_te[:n_te - n_te%bs]
 
-    cn.fit(X_tr, Y_tr, X_te, Y_te)
-    # cn.build_model()
+    # cn.fit(X_tr, Y_tr, X_te, Y_te)
+    cn.build_model()
     prediction = cn.predict(X_te)
     ac = cn.get_accuracy(Y_te, prediction)
+
+    cm = cn.get_cm(Y_te, prediction)
 
     print(ac)
