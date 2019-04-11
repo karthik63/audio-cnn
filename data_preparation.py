@@ -303,7 +303,7 @@ if __name__ == '__main__':
 
     # extract_ts_multiple('../indian_4_sana_segmented')
 
-    extract_ts_multiple_binned_test('../indian_4_sana_segmented', 'data/indian_4_sana_segmented', train=False)
+    extract_ts_multiple_binned_test('../indian_4_sana_segmented', 'data/indian_4_sana_segmented_poll', train=False)
     # extract_ts_multiple_binned_test('indian_fake', 'data/indian_4_sana_segmented', train=False)
 
     print('oo')

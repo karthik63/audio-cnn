@@ -332,11 +332,11 @@ if __name__ == '__main__':
     bs = 5
 
     X_tr = np.load('data/indian_4_sana_segmented_X_train.npy')
-    X_te = np.load('data/indian_4_sana_segmented_X_test.npy')
+    X_te = np.load('data/indian_4_sana_segmented_poll_X_test.npy')
     Y_tr = np.load('data/indian_4_sana_segmented_Y_train.npy')
-    Y_te = np.load('data/indian_4_sana_segmented_Y_test.npy')
+    Y_te = np.load('data/indian_4_sana_segmented_poll_Y_test.npy')
 
-    segment_count_te = np.load('data/indian_4_sana_segmented_segment_count_test.npy')
+    segment_count_te = np.load('data/indian_4_sana_segmented_poll_segment_count_test.npy')
 
     cn = GenreCNN(batch_size=bs)
 
