@@ -20,8 +20,8 @@ class GenreCNN:
                  mel=True, stft=False,
                  batch_size=5,
                  max_itrns=3000,
-                 n_classes=3,
-                 save_path='saved_models_indian_3_harris_segmented'):
+                 n_classes=4,
+                 save_path='saved_models_indian_4_sana_segmented'):
 
         self.mel = mel
         self.stft = stft
@@ -151,7 +151,7 @@ class GenreCNN:
                 self.saver.save(sess, os.path.join(self.save_path, 'model.ckpt'),global_step=ei)
 
 
-            if (ei + 1) % 10 == 0 and np.any(X_te) and np.any(Y_te):
+            if (ei + 1) % 150 == 0 and np.any(X_te) and np.any(Y_te):
                 prediction = cn.predict(X_te)
                 ac = cn.get_accuracy(Y_te, prediction)
                 print(ac)
@@ -248,10 +248,10 @@ if __name__ == '__main__':
 
     bs = 5
 
-    X_tr = np.load('data/indian_3_harris_segmented_X_train.npy')
-    X_te = np.load('data/indian_3_harris_segmented_X_test.npy')
-    Y_tr = np.load('data/indian_3_harris_segmented_Y_train.npy')
-    Y_te = np.load('data/indian_3_harris_segmented_Y_test.npy')
+    X_tr = np.load('data/indian_4_sana_segmented_X_train.npy')
+    X_te = np.load('data/indian_4_sana_segmented_X_test.npy')
+    Y_tr = np.load('data/indian_4_sana_segmented_Y_train.npy')
+    Y_te = np.load('data/indian_4_sana_segmented_Y_test.npy')
 
     cn = GenreCNN(batch_size=bs)
 
