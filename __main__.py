@@ -188,7 +188,7 @@ class GenreCNN:
             poll = [0] * self.n_classes
             sum = [0] * self.n_classes
 
-            for segment_i in range(segment_counts_test[song_i]):
+            for segment_i in range(int(segment_counts_test[song_i])):
 
                 poll += outputs[out_index]
                 best_index = np.argmax(outputs[out_index])
