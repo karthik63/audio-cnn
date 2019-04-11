@@ -153,7 +153,7 @@ class GenreCNN:
                 self.saver.save(sess, os.path.join(self.save_path, 'model.ckpt'),global_step=ei)
 
 
-            if (ei + 1) % 150 == 0 and np.any(X_te) and np.any(Y_te):
+            if (ei + 1) % 10 == 0 and np.any(X_te) and np.any(Y_te):
 
 
                 if not self.test_songwise:
@@ -342,8 +342,8 @@ if __name__ == '__main__':
 
     n_te = Y_te.shape[0]
 
-    # cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
-    cn.build_model()
+    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
+    # cn.build_model()
     prediction = cn.predict(X_te)
     ac = cn.get_accuracy(Y_te, prediction)
 
