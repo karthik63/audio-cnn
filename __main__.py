@@ -21,7 +21,7 @@ class GenreCNN:
                  batch_size=5,
                  max_itrns=3000,
                  n_classes=3,
-                 save_path='saved_models_indian_3_harris'):
+                 save_path='saved_models_indian_3_harris_segmented'):
 
         self.mel = mel
         self.stft = stft
@@ -248,10 +248,10 @@ if __name__ == '__main__':
 
     bs = 5
 
-    X_tr = np.load('data/indian_3_harris_X_train.npy')
-    X_te = np.load('data/indian_3_harris_X_test.npy')
-    Y_tr = np.load('data/indian_3_harris_Y_train.npy')
-    Y_te = np.load('data/indian_3_harris_Y_test.npy')
+    X_tr = np.load('data/indian_3_harris_segmented_X_train.npy')
+    X_te = np.load('data/indian_3_harris_segmented_X_test.npy')
+    Y_tr = np.load('data/indian_3_harris_segmented_Y_train.npy')
+    Y_te = np.load('data/indian_3_harris_segmented_Y_test.npy')
 
     cn = GenreCNN(batch_size=bs)
 
