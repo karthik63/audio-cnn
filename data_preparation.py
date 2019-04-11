@@ -30,21 +30,21 @@ def extract_ts_multiple(base_directory, train_ratio = .7, time_limit=661794):
 
         for (si, song) in enumerate(os.listdir(path)):
 
-            # try:
+            try:
 
-            song_timeseries = lb.load(os.path.join(path, song))[0].astype(np.float32)
-            length = song_timeseries.shape[0]
+                song_timeseries = lb.load(os.path.join(path, song))[0].astype(np.float32)
+                length = song_timeseries.shape[0]
 
-            for sid in range(length // time_limit):
-                print(sid)
-                song_timeseries_cropped = song_timeseries[time_limit*sid: time_limit*sid + time_limit]
+                for sid in range(length // time_limit):
+                    print(sid)
+                    song_timeseries_cropped = song_timeseries[time_limit*sid: time_limit*sid + time_limit]
 
-                X.append(song_timeseries_cropped)
-                Y.append(gi)
+                    X.append(song_timeseries_cropped)
+                    Y.append(gi)
 
-            print(' * {} {} * '.format(genre, song))
-            # except:
-            print('couldnt load song')
+                print(' * {} {} * '.format(genre, song))
+            except:
+                print('couldnt load song')
 
 
     X = np.vstack(X).astype(np.float32)
