@@ -194,9 +194,9 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
 
 if __name__ == '__main__':
 
-    # X_train, X_test, Y_train, Y_test = extract_ts('../indian_3_harris')
+    X_train, X_test, Y_train, Y_test = extract_ts('../indian_3_harris_segmented')
 
-    extract_ts_multiple('../indian_3_harris')
+    # extract_ts_multiple('../indian_3_harris')
 
     print('oo')
 
