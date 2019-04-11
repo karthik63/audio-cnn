@@ -163,6 +163,7 @@ class GenreCNN:
                     outputs = self.output(X_te)
                     prediction = self.get_songwise_prediction(outputs, segment_count_te)
 
+                print(prediction)
                 ac = self.get_accuracy(Y_te, prediction)
                 print(ac)
 
@@ -199,6 +200,8 @@ class GenreCNN:
             indices.sort(key=lambda x: sum[x], reverse=True)
             indices.sort(key=lambda x: poll[x], reverse=True)
             predictions[song_i] = indices[0]
+
+        return predictions
 
 
     def fit(self, X_train, Y_train, X_te=None, Y_te=None, segment_count_test=None):
