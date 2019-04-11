@@ -185,8 +185,8 @@ class GenreCNN:
 
         for song_i in range(n_songs):
 
-            poll = [0] * self.batch_size
-            sum = [0] * self.batch_size
+            poll = [0] * self.n_classes
+            sum = [0] * self.n_classes
 
             for segment_i in range(segment_counts_test[song_i]):
 
@@ -195,7 +195,7 @@ class GenreCNN:
                 sum[best_index] += 1
                 out_index += 1
 
-            indices = list(range(self.batch_size))
+            indices = list(range(self.n_classes))
             indices.sort(key=lambda x: sum[x], reverse=True)
             indices.sort(key=lambda x: poll[x], reverse=True)
             predictions[song_i] = indices[0]
@@ -238,7 +238,7 @@ class GenreCNN:
         X = np.expand_dims(X, 3)
 
         n_predictions = X.shape[0]
-        outputs = np.zeros((n_predictions, self.batch_size), np.float32)
+        outputs = np.zeros((n_predictions, self.n_classes), np.float32)
 
         for xi in range(n_predictions//self.batch_size):
 
