@@ -180,7 +180,7 @@ class GenreCNN:
     def get_songwise_prediction(self, outputs, segment_counts_test):
 
         n_songs = segment_counts_test.shape[0]
-        predictions = np.int32(n_songs, np.int32)
+        predictions = np.zeros(n_songs, np.int32)
         out_index = 0
 
         for song_i in range(n_songs):
@@ -342,8 +342,8 @@ if __name__ == '__main__':
 
     n_te = Y_te.shape[0]
 
-    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
-    # cn.build_model()
+    # cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
+    cn.build_model()
     prediction = cn.predict(X_te)
     ac = cn.get_accuracy(Y_te, prediction)
 
