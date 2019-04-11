@@ -332,6 +332,8 @@ if __name__ == '__main__':
 
     # X_train, X_test, Y_train, Y_test = extract_ts('../mydata')
 
+    #hmm
+
     bs = 5
 
     X_tr = np.load('data/indian_4_sana_segmented_X_train.npy')
