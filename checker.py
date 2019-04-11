@@ -6,8 +6,18 @@ import librosa as lb
 #
 # print(a)
 
-g = lb.load('petta.wav')
+# g = lb.load('petta.wav')
+#
+# print(g[1])
+#
+# lb.output.write_wav('song.wav', np.load('data/indian_fake_X_test.npy')[18], sr=22050)
 
-print(g[1])
+sum = [1,2,3,4]
+poll = [1, 16, 78, 6]
 
-lb.output.write_wav('song.wav', np.load('data/indian_fake_X_test.npy')[18], sr=22050)
+indices = list(range(4))
+print(indices)
+indices.sort(key=lambda x: sum[x], reverse=True)
+print(indices)
+indices.sort(key=lambda x: poll[x], reverse=True)
+print(indices)

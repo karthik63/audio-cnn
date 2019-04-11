@@ -19,10 +19,12 @@ class GenreCNN:
     def __init__(self, preprocess=False, class_names=None,
                  mel=True, stft=False,
                  batch_size=5,
-                 max_itrns=3000,
+                 max_itrns=4000,
                  n_classes=4,
-                 save_path='saved_models_indian_4_sana_segmented'):
+                 save_path='saved_models_indian_4_sana_segmented',
+                 test_songwise=True):
 
+        self.test_songwise = test_songwise
         self.mel = mel
         self.stft = stft
         self.batch_size = batch_size
@@ -107,7 +109,7 @@ class GenreCNN:
 
         print('boo')
 
-    def train(self, X_te=None, Y_te=None):
+    def train(self, X_te=None, Y_te=None, segment_count_te=None):
 
         # queue = tf.FIFOQueue(capacity=self.batch_size* 5, shapes=[(self.input_h, self.input_w, 1), self.n_classes],
         #                      dtypes=[tf.float32, tf.float32])
@@ -152,11 +154,19 @@ class GenreCNN:
 
 
             if (ei + 1) % 150 == 0 and np.any(X_te) and np.any(Y_te):
-                prediction = cn.predict(X_te)
-                ac = cn.get_accuracy(Y_te, prediction)
+
+
+                if not self.test_songwise:
+                    prediction = self.predict(X_te)
+
+                if self.test_songwise:
+                    outputs = self.output(X_te)
+                    prediction = self.get_songwise_prediction(outputs, segment_count_te)
+
+                ac = self.get_accuracy(Y_te, prediction)
                 print(ac)
 
-                cm = cn.get_cm(Y_te, prediction)
+                cm = self.get_cm(Y_te, prediction)
                 print(cm)
 
                 print(sklearn.metrics.f1_score(Y_te, prediction, average='micro'), ' micro')
@@ -167,7 +177,31 @@ class GenreCNN:
 
         self.sess = sess
 
-    def fit(self, X_train, Y_train, X_te=None, Y_te=None):
+    def get_songwise_prediction(self, outputs, segment_counts_test):
+
+        n_songs = segment_counts_test.shape[0]
+        predictions = np.int32(n_songs, np.int32)
+        out_index = 0
+
+        for song_i in range(n_songs):
+
+            poll = [0] * self.batch_size
+            sum = [0] * self.batch_size
+
+            for segment_i in range(segment_counts_test[song_i]):
+
+                poll += outputs[out_index]
+                best_index = np.argmax(outputs[out_index])
+                sum[best_index] += 1
+                out_index += 1
+
+            indices = list(range(self.batch_size))
+            indices.sort(key=lambda x: sum[x], reverse=True)
+            indices.sort(key=lambda x: poll[x], reverse=True)
+            predictions[song_i] = indices[0]
+
+
+    def fit(self, X_train, Y_train, X_te=None, Y_te=None, segment_count_test=None):
 
         self.X_train = X_train
         self.Y_train = Y_train
@@ -186,8 +220,47 @@ class GenreCNN:
         self.X_train_sg = np.expand_dims(self.X_train_sg, 3)
 
         self.build_model()
-        self.train(X_te, Y_te)
+        self.train(X_te, Y_te, segment_count_test)
 
+    def output(self, X):
+        print(self.sess)
+
+        if self.sess == None:
+            self.sess = tf.Session()
+            self.saver.restore(self.sess, tf.train.latest_checkpoint(self.save_path))
+            print('* reloaded *')
+
+        if self.mel:
+            extract_melsg_vectorized = np.vectorize(self.extract_spectrogram, otypes=[np.float32],
+                                                    signature='(a)->(b,c)')
+            X = extract_melsg_vectorized(X)
+
+        X = np.expand_dims(X, 3)
+
+        n_predictions = X.shape[0]
+        outputs = np.zeros((n_predictions, self.batch_size), np.float32)
+
+        for xi in range(n_predictions//self.batch_size):
+
+            data = X[xi*self.batch_size: (xi + 1) * self.batch_size]
+
+            class_scores = self.sess.run(self.class_scores, {self.input_batch: data})
+
+            outputs[xi*self.batch_size: (xi + 1) * self.batch_size, :] = class_scores
+
+            print(xi*self.batch_size, (xi + 1) * self.batch_size)
+
+        if n_predictions%self.batch_size != 0:
+            data = X[n_predictions - self.batch_size: n_predictions]
+
+            class_scores = self.sess.run(self.class_scores, {self.input_batch: data})
+
+            outputs[n_predictions - self.batch_size: n_predictions, :] = class_scores
+
+            print(n_predictions - self.batch_size,  n_predictions)
+
+        print(outputs)
+        return outputs
 
     def predict(self, X):
 
@@ -206,7 +279,7 @@ class GenreCNN:
         X = np.expand_dims(X, 3)
 
         n_predictions = X.shape[0]
-        predictions = np.zeros(n_predictions - n_predictions%self.batch_size, np.int32)
+        predictions = np.zeros(n_predictions, np.int32)
 
 
         for xi in range(n_predictions//self.batch_size):
@@ -219,6 +292,16 @@ class GenreCNN:
             predictions[xi*self.batch_size: (xi + 1) * self.batch_size] = class_prediction
 
             print(xi*self.batch_size, (xi + 1) * self.batch_size)
+
+        if n_predictions%self.batch_size != 0:
+            data = X[n_predictions - self.batch_size: n_predictions]
+
+            class_scores = self.sess.run(self.class_scores, {self.input_batch: data})
+            class_prediction = np.argmax(class_scores, axis=1)
+
+            predictions[n_predictions - self.batch_size: n_predictions] = class_prediction
+
+            print(n_predictions - self.batch_size,  n_predictions)
 
         print(predictions)
         return predictions
@@ -253,13 +336,13 @@ if __name__ == '__main__':
     Y_tr = np.load('data/indian_4_sana_segmented_Y_train.npy')
     Y_te = np.load('data/indian_4_sana_segmented_Y_test.npy')
 
+    segment_count_te = np.load('data/indian_4_sana_segmented_segment_count_test.npy')
+
     cn = GenreCNN(batch_size=bs)
 
     n_te = Y_te.shape[0]
 
-    Y_te = Y_te[:n_te - n_te%bs]
-
-    cn.fit(X_tr, Y_tr, X_te, Y_te)
+    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
     # cn.build_model()
     prediction = cn.predict(X_te)
     ac = cn.get_accuracy(Y_te, prediction)
