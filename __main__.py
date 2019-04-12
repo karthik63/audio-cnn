@@ -25,7 +25,7 @@ class GenreCNN:
                  batch_size=5,
                  max_itrns=3000,
                  n_classes=4,
-                 save_path='saved_models_indian_4_segmented',
+                 save_path='saved_models_indian_4_sana_segmented',
                  test_songwise=False,
                  lstm_input_size=500,
                  lstm_batch_size=10,
