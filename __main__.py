@@ -7,6 +7,10 @@ from numba.targets.arraymath import np_all
 import sklearn
 from tensorflow.python.training import optimizer
 import matplotlib.pyplot as plt
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import CuDNNLSTM, Masking, Dense, Input, LSTM
+
 
 from data_preparation import *
 np.random.seed(1234)
@@ -19,11 +23,18 @@ class GenreCNN:
     def __init__(self, preprocess=False, class_names=None,
                  mel=True, stft=False,
                  batch_size=5,
-                 max_itrns=4000,
+                 max_itrns=3000,
                  n_classes=4,
-                 save_path='saved_models_indian_4_sana_segmented',
-                 test_songwise=True):
+                 save_path='saved_models_indian_4_segmented',
+                 test_songwise=False,
+                 lstm_input_size=500,
+                 lstm_batch_size=10,
+                 max_itrns_lstm=1000):
 
+        self.max_itrns_lstm = max_itrns_lstm
+        self.max_sequence_length = None
+        self.lstm_batch_size = lstm_batch_size
+        self.lstm_input_size = lstm_input_size
         self.test_songwise = test_songwise
         self.mel = mel
         self.stft = stft
@@ -57,6 +68,201 @@ class GenreCNN:
 
         return concat[:, 0:-1], concat[:, -1]
 
+    def get_lstm_data_X(self, X, segment_counts):
+        print(self.sess)
+
+        if self.sess == None:
+            self.sess = tf.Session()
+            self.saver.restore(self.sess, tf.train.latest_checkpoint(self.save_path))
+            print('* reloaded *')
+
+        if self.mel:
+            extract_melsg_vectorized = np.vectorize(self.extract_spectrogram, otypes=[np.float32],
+                                                    signature='(a)->(b,c)')
+            X = extract_melsg_vectorized(X)
+
+        X = np.expand_dims(X, 3)
+
+        n_predictions = X.shape[0]
+        intermediate = np.zeros((n_predictions, self.lstm_input_size), np.float32)
+
+        for xi in range(n_predictions // self.batch_size):
+            data = X[xi * self.batch_size: (xi + 1) * self.batch_size]
+
+            pool4 = self.sess.run(self.pool4, {self.input_batch: data})
+
+            intermediate[xi * self.batch_size: (xi + 1) * self.batch_size, :] = pool4
+
+            print(xi * self.batch_size, (xi + 1) * self.batch_size)
+
+        if n_predictions % self.batch_size != 0:
+            data = X[n_predictions - self.batch_size: n_predictions]
+
+            pool4 = self.sess.run(self.pool4, {self.input_batch: data})
+
+            intermediate[n_predictions - self.batch_size: n_predictions, :] = pool4
+
+            print(n_predictions - self.batch_size, n_predictions)
+
+        print(intermediate)
+
+        index = 0
+
+        sequence_data = []
+
+        for song_index in range(segment_counts.shape[0]):
+            temp = []
+            for segment_index in range(int(segment_counts[song_index])):
+                temp.append(intermediate[index])
+                index += 1
+            sequence_data.append(temp)
+
+        return sequence_data
+
+    def get_lstm_data_Y(self, Y_train, Y_test, segment_count_train, segment_count_test):
+
+        print(self.sess)
+
+        Y_tr_corrected = []
+        Y_te_corrected = []
+
+        index = 0
+
+        for seg_count in segment_count_train:
+            Y_tr_corrected.append(Y_train[index])
+            index += int(seg_count)
+
+        index = 0
+
+        for seg_count in segment_count_test:
+            Y_te_corrected.append(Y_test[index])
+            index += int(seg_count)
+
+        Y_tr_corrected = np.array(Y_tr_corrected, dtype=np.int32)
+        Y_te_corrected = np.array(Y_te_corrected, dtype=np.float32)
+
+        Y_tr_corrected = np.eye(self.n_classes, dtype=np.float32)[Y_tr_corrected]
+
+        return Y_tr_corrected, Y_te_corrected
+
+    def predict_lstm(self, X):
+        print(self.sess)
+
+        if self.sess == None:
+            self.sess = tf.Session()
+            self.saver.restore(self.sess, tf.train.latest_checkpoint(self.save_path + '_lstm'))
+            print('* reloaded *')
+
+        n_predictions = X.shape[0]
+        predictions = np.zeros(n_predictions, np.int32)
+
+        for xi in range(n_predictions // self.lstm_batch_size):
+            data = X[xi * self.lstm_batch_size: (xi + 1) * self.lstm_batch_size]
+
+            class_scores = self.sess.run(self.lstm_output, {self.input_batch_lstm: data})
+            class_prediction = np.argmax(class_scores, axis=1)
+
+            predictions[xi * self.lstm_batch_size: (xi + 1) * self.lstm_batch_size] = class_prediction
+
+            print(xi * self.lstm_batch_size, (xi + 1) * self.lstm_batch_size)
+
+        if n_predictions % self.lstm_batch_size != 0:
+            data = X[n_predictions - self.lstm_batch_size: n_predictions]
+
+            class_scores = self.sess.run(self.lstm_output, {self.input_batch_lstm: data})
+            class_prediction = np.argmax(class_scores, axis=1)
+
+            predictions[n_predictions - self.lstm_batch_size: n_predictions] = class_prediction
+
+            print(n_predictions - self.lstm_batch_size, n_predictions)
+
+        print(predictions)
+        return predictions
+
+    def fit_lstm(self, X_train, Y_train, X_test, Y_test, segment_count_train, segment_count_test):
+
+        self.max_sequence_length = int(np.max((np.max(segment_count_test), np.max(segment_count_train))))
+
+        Y_train, Y_test = self.get_lstm_data_Y(Y_train, Y_test, segment_count_train, segment_count_test)
+
+        X_train = self.get_lstm_data_X(X_train, segment_count_train)
+
+        X_test = self.get_lstm_data_X(X_test, segment_count_test)
+
+        X_train = np.array(pad_sequences(X_train, maxlen=self.max_sequence_length, dtype='float32', padding='post'),
+                           dtype=np.float32)
+        X_test = np.array(pad_sequences(X_test, maxlen=self.max_sequence_length, dtype='float32', padding='post'),
+                          dtype=np.float32)
+
+        self.input_batch_lstm = tf.placeholder(shape=(self.lstm_batch_size, self.max_sequence_length, self.lstm_input_size),
+                                     dtype=tf.float32)
+
+        label_batch = tf.placeholder(shape=(self.lstm_batch_size, self.n_classes), dtype=tf.float32)
+
+        with tf.variable_scope('LSTM_audio'):
+
+            input_masked = Masking()(self.input_batch_lstm)
+
+            lstm_out = LSTM(800)(input_masked)
+
+            print(lstm_out)
+
+            dense_1 = Dense(50, activation='relu')(lstm_out)
+
+            dense_2 = Dense(self.n_classes, activation='softmax')(dense_1)
+
+            self.lstm_output = dense_2
+
+            loss = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(logits=dense_2, labels=label_batch))
+
+            optimize_step = tf.train.AdamOptimizer().minimize(loss)
+
+            queue = tf.RandomShuffleQueue(capacity=self.lstm_batch_size * 5,
+                                          shapes=[(self.max_sequence_length, self.lstm_input_size), self.n_classes],
+                                          dtypes=[tf.float32, tf.float32], min_after_dequeue=self.lstm_batch_size * 2)
+
+            enqueue_op = queue.enqueue_many([X_train, Y_train])
+
+            qr = tf.train.QueueRunner(queue, [enqueue_op] * 6)
+
+            if self.sess == None:
+                self.sess = tf.Session()
+
+            coord = tf.train.Coordinator()
+            enqueue_threads = qr.create_threads(self.sess, coord=coord, start=True)
+
+            self.sess.run(tf.global_variables_initializer())
+
+            input_b, label_b = queue.dequeue_many(self.lstm_batch_size)
+
+            for batch in range(self.max_itrns_lstm):
+                in_b_run, label_b_run = self.sess.run([input_b, label_b])
+
+                _, loss_val = self.sess.run([optimize_step, loss],
+                                       feed_dict={self.input_batch_lstm: in_b_run, label_batch: label_b_run})
+
+                print("loss: {}, batch {}".format(loss_val, batch))
+
+                if ((batch + 1) % 200 == 0):
+                    print(' * saaved * ', batch)
+                    self.saver.save(self.sess, os.path.join(self.save_path + '_lstm', 'model.ckpt'), global_step=batch)
+
+                if (batch + 1) % 100 == 0 and np.any(X_test) and np.any(Y_test):
+
+                    prediction = self.predict_lstm(X_test)
+
+                    print(prediction)
+                    ac = self.get_accuracy(Y_test, prediction)
+                    print(ac)
+
+                    cm = self.get_cm(Y_test, prediction)
+                    print(cm)
+
+                    print(sklearn.metrics.f1_score(Y_test, prediction, average='micro'), ' micro')
+                    print(sklearn.metrics.f1_score(Y_test, prediction, average='macro'), ' macro')
+
+            coord.request_stop()
+            coord.join(enqueue_threads)
 
     def build_model(self):
 
@@ -86,6 +292,10 @@ class GenreCNN:
             pool4 = tf.keras.layers.MaxPool2D((2,3), padding='same')(conv4)
 
             pool4 = tf.squeeze(pool4)
+
+            self.pool4 = pool4
+
+            print(pool4.get_shape())
 
             class_scores = tf.keras.layers.Dense(self.n_classes)(pool4)
 
@@ -153,7 +363,7 @@ class GenreCNN:
                 self.saver.save(sess, os.path.join(self.save_path, 'model.ckpt'),global_step=ei)
 
 
-            if (ei + 1) % 10 == 0 and np.any(X_te) and np.any(Y_te):
+            if (ei + 1) % 100 == 0 and np.any(X_te) and np.any(Y_te):
 
 
                 if not self.test_songwise:
@@ -337,18 +547,21 @@ if __name__ == '__main__':
     bs = 5
 
     X_tr = np.load('data/indian_4_sana_segmented_X_train.npy')
-    X_te = np.load('data/indian_4_sana_segmented_poll_X_test.npy')
+    X_te = np.load('data/indian_4_sana_segmented_X_test.npy')
     Y_tr = np.load('data/indian_4_sana_segmented_Y_train.npy')
-    Y_te = np.load('data/indian_4_sana_segmented_poll_Y_test.npy')
+    Y_te = np.load('data/indian_4_sana_segmented_Y_test.npy')
 
-    segment_count_te = np.load('data/indian_4_sana_segmented_poll_segment_count_test.npy')
+    segment_count_te = np.load('data/indian_4_sana_segmented_segment_count_test.npy')
+    segment_count_tr = np.load('data/indian_4_sana_segmented_segment_count_train.npy')
 
     cn = GenreCNN(batch_size=bs)
 
     n_te = Y_te.shape[0]
 
-    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
-    # cn.build_model()
+    # cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
+
+    cn.build_model()
+    cn.fit_lstm(X_tr,Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
     prediction = cn.predict(X_te)
     ac = cn.get_accuracy(Y_te, prediction)
 

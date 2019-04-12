@@ -24,6 +24,7 @@ def extract_ts_multiple_binned_test(base_directory, save_path, train_ratio = .7,
 
         X = []
         Y = []
+        segment_count = []
 
         for (gi, genre) in enumerate(class_list):
 
@@ -37,25 +38,29 @@ def extract_ts_multiple_binned_test(base_directory, save_path, train_ratio = .7,
                     length = song_timeseries.shape[0]
 
                     for sid in range(length // time_limit):
-                        print(sid)
-                        song_timeseries_cropped = song_timeseries[time_limit*sid: time_limit*sid + time_limit]
+                        song_timeseries_cropped = song_timeseries[time_limit * sid: time_limit * sid + time_limit]
 
                         X.append(song_timeseries_cropped)
                         Y.append(gi)
+                        print(sid)
+
+                    segment_count.append(sid + 1)
 
                     print(' * {} {} * '.format(genre, song))
                 except:
                     print('couldnt load song')
 
-
-        X = np.vstack(X).astype(np.float32)
+        X = np.array(X, dtype=np.float32)
         Y = np.array(Y, dtype=np.float32)
+        segment_count = np.array(segment_count, dtype=np.float32)
 
         print(X, X.shape)
         print(Y, Y.shape)
+        print(segment_count, segment_count.shape)
 
         np.save(save_path + '_X_train.npy', X)
         np.save(save_path + '_Y_train.npy', Y)
+        np.save(save_path + '_segment_count_train', segment_count)
 
     ############################################################################################
 
@@ -90,9 +95,9 @@ def extract_ts_multiple_binned_test(base_directory, save_path, train_ratio = .7,
                     song_timeseries_cropped = song_timeseries[time_limit * sid: time_limit * sid + time_limit]
 
                     X.append(song_timeseries_cropped)
+                    Y.append(gi)
                     print(sid)
 
-                Y.append(gi)
                 segment_count.append(sid + 1)
 
                 print(' * {} {} * '.format(genre, song))
@@ -303,7 +308,7 @@ if __name__ == '__main__':
 
     # extract_ts_multiple('../indian_4_sana_segmented')
 
-    extract_ts_multiple_binned_test('../indian_4_sana_segmented', 'data/indian_4_sana_segmented_poll', train=False)
+    extract_ts_multiple_binned_test('../indian_4_sana_segmented', 'data/indian_4_sana_segmented', train=True)
     # extract_ts_multiple_binned_test('indian_fake', 'data/indian_4_sana_segmented', train=False)
 
     print('oo')
