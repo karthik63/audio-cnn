@@ -27,7 +27,7 @@ class GenreCNN:
                  n_classes=4,
                  save_path='saved_models_indian_4_sana_segmented',
                  test_songwise=False,
-                 lstm_input_size=500,
+                 lstm_input_size=5,
                  lstm_batch_size=10,
                  max_itrns_lstm=1000):
 
@@ -203,11 +203,11 @@ class GenreCNN:
 
             input_masked = Masking()(self.input_batch_lstm)
 
-            lstm_out = LSTM(800)(input_masked)
+            lstm_out = LSTM(20)(input_masked)
 
             print(lstm_out)
 
-            dense_1 = Dense(50, activation='relu')(lstm_out)
+            dense_1 = Dense(20, activation='relu')(lstm_out)
 
             dense_2 = Dense(self.n_classes, activation='softmax')(dense_1)
 
@@ -293,11 +293,13 @@ class GenreCNN:
 
             pool4 = tf.squeeze(pool4)
 
-            self.pool4 = pool4
+
 
             print(pool4.get_shape())
 
             class_scores = tf.keras.layers.Dense(self.n_classes)(pool4)
+
+            self.pool4 = class_scores
 
             self.class_scores = class_scores
 
