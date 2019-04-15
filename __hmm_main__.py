@@ -1,5 +1,5 @@
-import logging
-logging.basicConfig(level=logging.DEBUG)
+# import logging
+# logging.basicConfig(level=print)
 import numpy as np
 import os
 # import pomegranate
@@ -81,16 +81,16 @@ class Audio_HMM():
         class_data = [[] for _ in range(self.n_class)]
         lengths = [[] for _ in range(self.n_class)]
 
-        logging.DEBUG(' * preprocessing * ')
+        print(' * preprocessing * ')
 
         for i, data in enumerate(X):
             class_data[int(Y[i])].append(data)
             lengths[int(Y[i])].append(data.shape[0])
 
-            logging.DEBUG(' * finished preprocessing * ')
+            print(' * finished preprocessing * ')
 
         for ci in range(self.n_class):
-            logging.DEBUG('fitting {}'.format(ci))
+            print('fitting {}'.format(ci))
             to_fit = np.concatenate(class_data[ci])
             self.hmm_set[ci].fit(to_fit, lengths[ci])
 
