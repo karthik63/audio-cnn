@@ -472,7 +472,7 @@ class GenreCNN:
 
                 if not self.test_songwise:
                     outputs = self.output(X_te)
-                    prediction = self.predict(X_te)
+                    prediction = np.argmax(outputs, 1)
 
                 if self.test_songwise:
                     outputs = self.output(X_te)
