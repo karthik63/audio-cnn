@@ -25,12 +25,15 @@ class GenreCNN:
                  batch_size=5,
                  max_itrns=3000,
                  n_classes=4,
-                 save_path='saved_models_indian_4_sana_segmented',
+                 save_path='saved_models_indian_4_sana_segmented_summary_finding',
+                 log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs',
                  test_songwise=False,
                  lstm_input_size=500,
                  lstm_batch_size=10,
                  max_itrns_lstm=1000):
 
+        self.log_path_train = os.path.join(log_path,'train')
+        self.log_path_validation = os.path.join(log_path,'validation')
         self.max_itrns_lstm = max_itrns_lstm
         self.max_sequence_length = None
         self.lstm_batch_size = lstm_batch_size
@@ -45,6 +48,12 @@ class GenreCNN:
         self.n_classes = n_classes
         self.save_path = save_path
         self.sess = None
+
+        if not os.path.exists(self.log_path_train):
+            os.makedirs(self.log_path_train)
+
+        if not os.path.exists(self.log_path_validation):
+            os.makedirs(self.log_path_validation)
 
         if class_names:
             self.index_to_class = sorted(class_names)
@@ -119,31 +128,20 @@ class GenreCNN:
 
         return sequence_data
 
-    def get_lstm_data_Y(self, Y_train, Y_test, segment_count_train, segment_count_test):
+    def get_lstm_data_Y(self, Y, segment_count):
 
         print(self.sess)
 
-        Y_tr_corrected = []
-        Y_te_corrected = []
-
+        Y_corrected = []
         index = 0
 
-        for seg_count in segment_count_train:
-            Y_tr_corrected.append(Y_train[index])
+        for seg_count in segment_count:
+            Y_corrected.append(Y[index])
             index += int(seg_count)
 
-        index = 0
+        Y_corrected = np.array(Y_corrected, dtype=np.float32)
 
-        for seg_count in segment_count_test:
-            Y_te_corrected.append(Y_test[index])
-            index += int(seg_count)
-
-        Y_tr_corrected = np.array(Y_tr_corrected, dtype=np.int32)
-        Y_te_corrected = np.array(Y_te_corrected, dtype=np.float32)
-
-        Y_tr_corrected = np.eye(self.n_classes, dtype=np.float32)[Y_tr_corrected]
-
-        return Y_tr_corrected, Y_te_corrected
+        return Y_corrected
 
     def predict_lstm(self, X):
         print(self.sess)
@@ -183,7 +181,11 @@ class GenreCNN:
 
         self.max_sequence_length = int(np.max((np.max(segment_count_test), np.max(segment_count_train))))
 
-        Y_train, Y_test = self.get_lstm_data_Y(Y_train, Y_test, segment_count_train, segment_count_test)
+        Y_train= self.get_lstm_data_Y(Y_train, segment_count_train)
+
+        Y_train = np.eye(self.n_classes, dtype=np.float32)[Y_train.astype(np.int32)]
+
+        Y_test = self.get_lstm_data_Y(Y_test, segment_count_test)
 
         X_train = self.get_lstm_data_X(X_train, segment_count_train)
 
@@ -213,9 +215,31 @@ class GenreCNN:
 
             self.lstm_output = dense_2
 
-            loss = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(logits=dense_2, labels=label_batch))
+            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=dense_2, labels=label_batch))
+
+            continuous_loss_summary = tf.summary.scalar('lstm_continuous_loss', loss)
 
             optimize_step = tf.train.AdamOptimizer().minimize(loss)
+
+            lstm_train_summaries = []
+            lstm_validation_summaries = []
+            lstm_weight_summaries = []
+
+            accuracy_placeholder = tf.placeholder(tf.float32, shape=())
+            microf_placeholder = tf.placeholder(tf.float32, shape=())
+            macrof_place_holder = tf.placeholder(tf.float32, shape=())
+            loss_placeholder = tf.placeholder(tf.float32, shape=())
+
+            loss_summary = tf.summary.scalar('loss_lstm', loss_placeholder)
+
+            lstm_train_summaries.append(tf.summary.scalar('ac_lstm', accuracy_placeholder))
+            lstm_train_summaries.append(tf.summary.scalar('microf_lstm', microf_placeholder))
+            lstm_train_summaries.append(tf.summary.scalar('macro_f_lstm', macrof_place_holder))
+
+            lstm_validation_summaries.append(tf.summary.scalar('ac_lstm', accuracy_placeholder))
+            lstm_validation_summaries.append(tf.summary.scalar('microf_lstm', microf_placeholder))
+            lstm_validation_summaries.append(tf.summary.scalar('macro_f_lstm', macrof_place_holder))
+            lstm_validation_summaries.append(loss_summary)
 
             queue = tf.RandomShuffleQueue(capacity=self.lstm_batch_size * 5,
                                           shapes=[(self.max_sequence_length, self.lstm_input_size), self.n_classes],
@@ -240,6 +264,10 @@ class GenreCNN:
 
                 _, loss_val = self.sess.run([optimize_step, loss],
                                        feed_dict={self.input_batch_lstm: in_b_run, label_batch: label_b_run})
+
+                ls = self.sess.run(loss_summary, {loss_placeholder: loss})
+
+                self.train_writer.add_summary(ls)
 
                 print("loss: {}, batch {}".format(loss_val, batch))
 
@@ -293,8 +321,6 @@ class GenreCNN:
 
             pool4 = tf.squeeze(pool4)
 
-
-
             print(pool4.get_shape())
 
             class_scores = tf.keras.layers.Dense(self.n_classes)(pool4)
@@ -311,17 +337,53 @@ class GenreCNN:
         #
         #     ans = sess.run(a_shape, feed_dict={input: a})
 
-        self.loss = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(logits=self.class_scores, labels=self.label_batch))
+        self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.class_scores, labels=self.label_batch))
 
         self.global_step = tf.Variable(0, trainable=False)
 
         self.optimizer = tf.train.AdamOptimizer().minimize(self.loss, global_step=self.global_step)
 
+        #summaries
+
+        self.train_summaries = []
+        self.validation_summaries = []
+        self.weight_summaries = []
+
         self.saver = tf.train.Saver(max_to_keep=4)
+
+        self.train_writer = tf.summary.FileWriter(self.log_path_train)
+        self.validation_writer = tf.summary.FileWriter(self.log_path_validation)
+
+        self.summary = tf.Summary()
+
+        self.accuracy_place_holder = tf.placeholder(tf.float32, shape=())
+
+        self.microf_placeholder = tf.placeholder(tf.float32, shape=())
+        self.macrof_place_holder = tf.placeholder(tf.float32, shape=())
+
+        self.loss_placeholder = tf.placeholder(tf.float32, shape=())
+        self.loss_summary = tf.summary.scalar('loss', self.loss_placeholder)
+
+        for variable in tf.trainable_variables():
+            self.weight_summaries.append(tf.summary.histogram(variable.name, variable))
+
+        self.train_summaries.append(tf.summary.scalar('accuracy', self.accuracy_place_holder))
+        self.train_summaries.append(tf.summary.scalar('macrof', self.macrof_place_holder))
+        self.train_summaries.append(tf.summary.scalar('microf', self.microf_placeholder))
+
+        self.validation_summaries.append(tf.summary.scalar('accuracy', self.accuracy_place_holder))
+        self.validation_summaries.append(tf.summary.scalar('macrof', self.macrof_place_holder))
+        self.validation_summaries.append(tf.summary.scalar('microf', self.microf_placeholder))
+        self.validation_summaries.append(self.loss_summary)
+
+
+        self.merged_summaries_train = tf.summary.merge(self.train_summaries)
+        self.merged_summaries_validation = tf.summary.merge(self.validation_summaries)
+        self.merged_summaries_weight = tf.summary.merge(self.weight_summaries)
 
         print('boo')
 
-    def train(self, X_te=None, Y_te=None, segment_count_te=None):
+    def train(self, X_te=None, Y_te=None, segment_count_te=None,):
 
         # queue = tf.FIFOQueue(capacity=self.batch_size* 5, shapes=[(self.input_h, self.input_w, 1), self.n_classes],
         #                      dtypes=[tf.float32, tf.float32])
@@ -355,8 +417,14 @@ class GenreCNN:
         for ei in range(start, self.max_itrns):
 
             in_b, l_b = sess.run([input_batch, label_batch])
-            loss, _ = sess.run((self.loss, self.optimizer), {self.input_batch: in_b,
-                                                             self.label_batch: l_b})
+            loss, weight_summary, _ = sess.run((self.loss,
+                                                     self.merged_summaries_weight, self.optimizer),
+                                                    {self.input_batch: in_b, self.label_batch: l_b})
+
+            loss_summary = sess.run(self.loss_summary, {self.loss_placeholder: loss})
+
+            self.train_writer.add_summary(weight_summary, ei)
+            self.train_writer.add_summary(loss_summary, ei)
 
             print("loss: {}, batch {}".format(loss, ei))
 
@@ -364,16 +432,56 @@ class GenreCNN:
                 print(' * saaved * ', ei)
                 self.saver.save(sess, os.path.join(self.save_path, 'model.ckpt'),global_step=ei)
 
+            if (ei + 1) % 70 == 0:
 
-            if (ei + 1) % 100 == 0 and np.any(X_te) and np.any(Y_te):
+                n_test = X_te.shape[0]
 
+                to_find = self.X_train[:n_test]
+                to_find_labels = np.argmax(self.Y_train[:n_test], 1)
+
+                prediction = self.predict(to_find)
+
+                # output_tensor = tf.constant(outputs)
+                # labels_tensor = tf.constant(np.eye(self.n_classes, dtype=np.float32)[to_find_labels.astype(np.int32)])
+
+                # train_loss = sess.run(-tf.reduce_mean(labels_tensor * tf.log(output_tensor), reduction_indices=[1]))
+
+                print(prediction)
+                ac = self.get_accuracy(to_find_labels, prediction)
+                print(ac)
+
+                cm = self.get_cm(to_find_labels, prediction)
+                print(cm)
+
+                macro = sklearn.metrics.f1_score(to_find_labels, prediction, average='macro')
+                micro = sklearn.metrics.f1_score(to_find_labels, prediction, average='micro')
+
+                summaries_train = sess.run(self.merged_summaries_train,
+                                                {self.accuracy_place_holder: ac,
+                                                 self.macrof_place_holder: macro,
+                                                 self.microf_placeholder: micro,
+                                                 }
+                                            )
+
+                self.train_writer.add_summary(summaries_train, ei)
+
+                print(micro, ' micro')
+                print(macro, ' macro')
+
+            if (ei + 1) % 70 == 0 and np.any(X_te) and np.any(Y_te):
 
                 if not self.test_songwise:
+                    outputs = self.output(X_te)
                     prediction = self.predict(X_te)
 
                 if self.test_songwise:
                     outputs = self.output(X_te)
                     prediction = self.get_songwise_prediction(outputs, segment_count_te)
+
+                output_tensor = tf.constant(outputs)
+                labels_tensor = tf.constant(np.eye(self.n_classes, dtype=np.float32)[Y_te.astype(np.int32)])
+
+                test_loss = sess.run(-tf.reduce_mean(labels_tensor * tf.log(output_tensor)))
 
                 print(prediction)
                 ac = self.get_accuracy(Y_te, prediction)
@@ -382,8 +490,21 @@ class GenreCNN:
                 cm = self.get_cm(Y_te, prediction)
                 print(cm)
 
-                print(sklearn.metrics.f1_score(Y_te, prediction, average='micro'), ' micro')
-                print(sklearn.metrics.f1_score(Y_te, prediction, average='macro'), ' macro')
+                macro = sklearn.metrics.f1_score(Y_te, prediction, average='macro')
+                micro = sklearn.metrics.f1_score(Y_te, prediction, average='micro')
+
+                summaries_validation = sess.run(self.merged_summaries_validation,
+                                                {self.accuracy_place_holder: ac,
+                                                 self.macrof_place_holder: macro,
+                                                 self.microf_placeholder: micro,
+                                                 self.loss_placeholder: test_loss,
+                                                }
+                                                )
+
+                self.validation_writer.add_summary(summaries_validation, ei)
+
+                print(micro, ' micro')
+                print(macro, ' macro')
 
         coord.request_stop()
         coord.join(enqueue_threads)
@@ -415,11 +536,17 @@ class GenreCNN:
 
         return predictions
 
-
-    def fit(self, X_train, Y_train, X_te=None, Y_te=None, segment_count_test=None):
-
+    def fit(self, X_train, Y_train, X_te=None, Y_te=None, segment_count_train=None, segment_count_test=None):
         self.X_train = X_train
         self.Y_train = Y_train
+
+        if self.test_songwise:
+            self.Y_train = self.get_lstm_data_Y(self.Y_train, segment_count_train)
+
+            self.Y_train = np.eye(self.n_classes, dtype=np.float32)[self.Y_train.astype(np.int32)]
+
+            if Y_te != None:
+                Y_te = self.get_lstm_data_Y(Y_te, segment_count_test)
 
         self.X_train, self.Y_train = self.shuffle(self.X_train, self.Y_train)
 
@@ -540,16 +667,17 @@ class GenreCNN:
 
         return cm
 
-if __name__ == '__main__':
 
+def main():
     # X_train, X_test, Y_train, Y_test = extract_ts('../mydata')
 
-    #hmm
+    # hmm
 
     bs = 5
 
     X_tr = np.load('data/indian_4_sana_segmented_X_train.npy')
     X_te = np.load('data/indian_4_sana_segmented_X_test.npy')
+
     Y_tr = np.load('data/indian_4_sana_segmented_Y_train.npy')
     Y_te = np.load('data/indian_4_sana_segmented_Y_test.npy')
 
@@ -560,10 +688,10 @@ if __name__ == '__main__':
 
     n_te = Y_te.shape[0]
 
-    # cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
+    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
 
-    cn.build_model()
-    cn.fit_lstm(X_tr,Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
+    # cn.build_model()
+    cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
     prediction = cn.predict(X_te)
     ac = cn.get_accuracy(Y_te, prediction)
 
@@ -572,3 +700,6 @@ if __name__ == '__main__':
     print(cm)
 
     print(ac)
+
+if __name__ == '__main__':
+    main()
