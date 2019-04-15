@@ -87,7 +87,7 @@ class Audio_HMM():
             class_data[int(Y[i])].append(data)
             lengths[int(Y[i])].append(data.shape[0])
 
-            print(' * finished preprocessing * ')
+        print(' * finished preprocessing * ')
 
         for ci in range(self.n_class):
             print('fitting {}'.format(ci))
@@ -95,7 +95,7 @@ class Audio_HMM():
             self.hmm_set[ci].fit(to_fit, lengths[ci])
 
             if np.any(self.hmm_set[ci].covars_ <= 0):
-                logging.warning('some covariances are 0. model might be a poor fit')
+                print('some covariances are 0. model might be a poor fit')
                 self.hmm_set[ci].covars_ = np.abs(self.hmm_set[ci].covars_) + 1e-10
 
             if np.any(self.hmm_set[ci].transmat_ == np.nan):
