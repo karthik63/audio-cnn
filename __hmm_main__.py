@@ -69,6 +69,8 @@ class Audio_HMM():
 
         self.n_class = len(labels)
 
+        print(' doing something ')
+
         try:
             X = np.load('X_mfcc.npy')
 
