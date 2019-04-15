@@ -115,7 +115,7 @@ class Audio_HMM():
         predictions = np.zeros(n_predictions, np.int32)
 
         for i, data in enumerate(X):
-
+            print('predicting ',i)
             temp_preds = []
 
             for ci in range(self.n_class):
@@ -141,6 +141,7 @@ Y_test = np.load('data/indian_4_sana_segmented_Y_test.npy')
 f = Audio_HMM()
 f.fit(X_train, Y_train)
 p = f.predict(X_test)
+print(p)
 print(f.get_accuracy(Y_test, p))
 
 # s = np.array([[1.0, 2,3,4],
