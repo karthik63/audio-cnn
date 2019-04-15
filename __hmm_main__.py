@@ -81,16 +81,16 @@ class Audio_HMM():
         class_data = [[] for _ in range(self.n_class)]
         lengths = [[] for _ in range(self.n_class)]
 
-        print(' * preprocessing * ')
+        logging.DEBUG(' * preprocessing * ')
 
         for i, data in enumerate(X):
             class_data[int(Y[i])].append(data)
             lengths[int(Y[i])].append(data.shape[0])
 
-        print(' * finished preprocessing * ')
+            logging.DEBUG(' * finished preprocessing * ')
 
         for ci in range(self.n_class):
-            print('fitting ', ci)
+            logging.DEBUG('fitting {}'.format(ci))
             to_fit = np.concatenate(class_data[ci])
             self.hmm_set[ci].fit(to_fit, lengths[ci])
 
