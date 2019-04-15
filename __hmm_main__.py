@@ -40,6 +40,7 @@ class Audio_HMM():
         return np.transpose(np.abs(lb.core.stft(X)))
 
     def extract_features(self, X):
+        print(' * extracting features * ')
         if self.feature == 'stft':
             extract_stft_vectorised = np.vectorize(self.extract_stft, otypes=[np.float64],
                                                signature='(a)->(b,c)')
@@ -70,6 +71,8 @@ class Audio_HMM():
 
         X = self.extract_features(X)
 
+        print(' * finished extracting features * ')
+
         self.hmm_set = [GMMHMM(n_components=self.n_states,
                  n_mix=self.n_mixtures,
                  verbose=True,
@@ -78,11 +81,16 @@ class Audio_HMM():
         class_data = [[] for _ in range(self.n_class)]
         lengths = [[] for _ in range(self.n_class)]
 
+        print(' * preprocessing * ')
+
         for i, data in enumerate(X):
             class_data[int(Y[i])].append(data)
             lengths[int(Y[i])].append(data.shape[0])
 
+        print(' * finished preprocessing * ')
+
         for ci in range(self.n_class):
+            print('fitting ', ci)
             to_fit = np.concatenate(class_data[ci])
             self.hmm_set[ci].fit(to_fit, lengths[ci])
 
