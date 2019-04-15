@@ -2,9 +2,9 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 import numpy as np
 import os
-import pomegranate
-from pomegranate import *
-from pomegranate.distributions import *
+# import pomegranate
+# from pomegranate import *
+# from pomegranate.distributions import *
 import librosa as lb
 from sklearn.cluster import KMeans
 from data_preparation import *
