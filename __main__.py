@@ -485,7 +485,7 @@ class GenreCNN:
                 output_tensor = tf.constant(outputs)
                 labels_tensor = tf.constant(np.eye(self.n_classes, dtype=np.float32)[Y_te.astype(np.int32)])
 
-                test_loss = sess.run(-tf.reduce_mean(labels_tensor * tf.log(output_tensor)))
+                test_loss = sess.run(-tf.reduce_mean(labels_tensor * tf.log(output_tensor + 1e-5)))
 
                 print(prediction)
                 ac = self.get_accuracy(Y_te, prediction)
