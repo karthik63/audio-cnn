@@ -69,7 +69,12 @@ class Audio_HMM():
 
         self.n_class = len(labels)
 
-        X = self.extract_features(X)
+        try:
+            X = np.load('X_mfcc.npy')
+
+        except:
+            X = self.extract_features(X)
+            np.save('X_mfcc.npy', X)
 
         print(' * finished extracting features * ')
 
