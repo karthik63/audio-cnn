@@ -25,8 +25,8 @@ class GenreCNN:
                  batch_size=5,
                  max_itrns=3000,
                  n_classes=4,
-                 save_path='saved_models_indian_4_sana_segmented_summary_finding',
-                 log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs',
+                 save_path='saved_models_indian_4_sana_segmented_summary_finding_1',
+                 log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs_1',
                  test_songwise=False,
                  lstm_input_size=500,
                  lstm_batch_size=10,
@@ -367,13 +367,17 @@ class GenreCNN:
         for variable in tf.trainable_variables():
             self.weight_summaries.append(tf.summary.histogram(variable.name, variable))
 
-        self.train_summaries.append(tf.summary.scalar('accuracy', self.accuracy_place_holder))
-        self.train_summaries.append(tf.summary.scalar('macrof', self.macrof_place_holder))
-        self.train_summaries.append(tf.summary.scalar('microf', self.microf_placeholder))
+        sacc = tf.summary.scalar('accuracy', self.accuracy_place_holder)
+        smac = tf.summary.scalar('macrof', self.macrof_place_holder)
+        smic = tf.summary.scalar('microf', self.microf_placeholder)
 
-        self.validation_summaries.append(tf.summary.scalar('accuracy', self.accuracy_place_holder))
-        self.validation_summaries.append(tf.summary.scalar('macrof', self.macrof_place_holder))
-        self.validation_summaries.append(tf.summary.scalar('microf', self.microf_placeholder))
+        self.train_summaries.append(sacc)
+        self.train_summaries.append(smac)
+        self.train_summaries.append(smic)
+
+        self.validation_summaries.append(sacc)
+        self.validation_summaries.append(smac)
+        self.validation_summaries.append(smic)
         self.validation_summaries.append(self.loss_summary)
 
 
