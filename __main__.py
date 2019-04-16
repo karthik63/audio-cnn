@@ -25,8 +25,8 @@ class GenreCNN:
                  batch_size=5,
                  max_itrns=3000,
                  n_classes=4,
-                 save_path='saved_models_indian_4_sana_segmented_summary_finding_2',
-                 log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs_2',
+                 save_path='saved_models_indian_4_sana_segmented_summary_finding_3',
+                 log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs_3',
                  test_songwise=False,
                  lstm_input_size=500,
                  lstm_batch_size=10,
@@ -681,20 +681,22 @@ def main():
 
     bs = 5
 
-    X_tr = np.load('data/esc_X_train.npy')
-    X_te = np.load('data/esc_X_test.npy')
+    name = 'data/indian_4_sana_segmented'
 
-    Y_tr = np.load('data/esc_Y_train.npy')
-    Y_te = np.load('data/esc_Y_test.npy')
+    X_tr = np.load(name + '_X_train.npy')
+    X_te = np.load(name + '_X_test.npy')
 
-    # segment_count_te = np.load('data/indian_4_fake_segment_count_test.npy')
-    # segment_count_tr = np.load('data/indian_4_sana_segmented_segment_count_train.npy')
+    Y_tr = np.load(name + '_Y_train.npy')
+    Y_te = np.load(name + '_Y_test.npy')
+
+    segment_count_te = np.load(name + '_segmented_count_test.npy')
+    segment_count_tr = np.load(name + '_segment_count_train.npy')
 
     cn = GenreCNN(batch_size=bs)
 
     n_te = Y_te.shape[0]
 
-    cn.fit(X_tr, Y_tr, X_te, Y_te)
+    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
 
     # cn.build_model()
     cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
