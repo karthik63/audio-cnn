@@ -689,7 +689,7 @@ def main():
     Y_tr = np.load(name + '_Y_train.npy')
     Y_te = np.load(name + '_Y_test.npy')
 
-    segment_count_te = np.load(name + '_segmented_count_test.npy')
+    segment_count_te = np.load(name + '_segment_count_test.npy')
     segment_count_tr = np.load(name + '_segment_count_train.npy')
 
     cn = GenreCNN(batch_size=bs)
