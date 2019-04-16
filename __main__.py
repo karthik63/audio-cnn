@@ -546,6 +546,8 @@ class GenreCNN:
         self.X_train = X_train
         self.Y_train = Y_train
 
+        print('going to fit')
+
         if self.test_songwise:
             self.Y_train = self.get_lstm_data_Y(self.Y_train, segment_count_train)
 
@@ -567,8 +569,13 @@ class GenreCNN:
 
         self.X_train_sg = np.expand_dims(self.X_train_sg, 3)
 
+        print('extracted')
+
         self.build_model()
+
+        print('built')
         self.train(X_te, Y_te, segment_count_test)
+
 
     def output(self, X):
         print(self.sess)
