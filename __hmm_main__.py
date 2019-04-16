@@ -87,22 +87,22 @@ class Audio_HMM():
         self.hmm_set.append(GMMHMM(n_components=self.n_states,
                               n_mix=self.n_mixtures,
                               verbose=True,
-                              n_iter=10) for _ in range(self.n_class))
+                              n_iter=10) )
 
         self.hmm_set.append(GMMHMM(n_components=self.n_states,
                               n_mix=self.n_mixtures,
                               verbose=True,
-                              n_iter=10) for _ in range(self.n_class))
+                              n_iter=10) )
 
         self.hmm_set.append(GMMHMM(n_components=self.n_states,
                               n_mix=self.n_mixtures,
                               verbose=True,
-                              n_iter=4) for _ in range(self.n_class))
+                              n_iter=4) )
 
         self.hmm_set.append(GMMHMM(n_components=self.n_states,
                               n_mix=self.n_mixtures,
                               verbose=True,
-                              n_iter=10) for _ in range(self.n_class))
+                              n_iter=10) )
 
         print(self.hmm_set)
 
