@@ -13,6 +13,8 @@ from hmmlearn.hmm import GMMHMM
 from sklearn.mixture import *
 import sklearn
 
+print('something')
+
 class Audio_HMM():
     def __init__(self, n_states=3, n_mixtures=1, feature='mfcc', n_freq=5, n_mfcc=20,
                  sampling_rate=22050):
@@ -140,6 +142,7 @@ Y_train = np.load('data/indian_4_sana_segmented_Y_train.npy')
 X_test = np.load('data/indian_4_sana_segmented_X_test.npy')
 Y_test = np.load('data/indian_4_sana_segmented_Y_test.npy')
 
+print('before instantiating')
 f = Audio_HMM()
 print('before fitting')
 f.fit(X_train, Y_train)
