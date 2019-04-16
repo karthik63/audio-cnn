@@ -141,6 +141,7 @@ X_test = np.load('data/indian_4_sana_segmented_X_test.npy')
 Y_test = np.load('data/indian_4_sana_segmented_Y_test.npy')
 
 f = Audio_HMM()
+print('before fitting')
 f.fit(X_train, Y_train)
 p = f.predict(X_test)
 print(p)
