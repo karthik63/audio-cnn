@@ -104,6 +104,8 @@ class Audio_HMM():
                               verbose=True,
                               n_iter=10) for _ in range(self.n_class))
 
+        print(hmm_set)
+
         class_data = [[] for _ in range(self.n_class)]
         lengths = [[] for _ in range(self.n_class)]
 
