@@ -16,7 +16,7 @@ import sklearn
 print('something')
 
 class Audio_HMM():
-    def __init__(self, n_states=3, n_mixtures=1, feature='mfcc', n_freq=5, n_mfcc=20,
+    def __init__(self, n_states=10, n_mixtures=1, feature='mfcc', n_freq=5, n_mfcc=20,
                  sampling_rate=22050):
 
         self.n_states = n_states
