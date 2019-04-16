@@ -16,7 +16,7 @@ import sklearn
 print('something')
 
 class Audio_HMM():
-    def __init__(self, n_states=10, n_mixtures=1, feature='mfcc', n_freq=5, n_mfcc=20,
+    def __init__(self, n_states=5, n_mixtures=1, feature='mfcc', n_freq=5, n_mfcc=20,
                  sampling_rate=22050):
 
         self.n_states = n_states
@@ -97,7 +97,7 @@ class Audio_HMM():
         self.hmm_set.append(GMMHMM(n_components=self.n_states,
                               n_mix=self.n_mixtures,
                               verbose=True,
-                              n_iter=4) )
+                              n_iter=9) )
 
         self.hmm_set.append(GMMHMM(n_components=self.n_states,
                               n_mix=self.n_mixtures,
