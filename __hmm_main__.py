@@ -82,10 +82,27 @@ class Audio_HMM():
 
         print(' * finished extracting features * ')
 
-        self.hmm_set = [GMMHMM(n_components=self.n_states,
-                 n_mix=self.n_mixtures,
-                 verbose=True,
-                 n_iter=10) for _ in range(self.n_class)]
+        self.hmm_set = []
+
+        self.hmm_set.append(GMMHMM(n_components=self.n_states,
+                              n_mix=self.n_mixtures,
+                              verbose=True,
+                              n_iter=10) for _ in range(self.n_class))
+
+        self.hmm_set.append(GMMHMM(n_components=self.n_states,
+                              n_mix=self.n_mixtures,
+                              verbose=True,
+                              n_iter=10) for _ in range(self.n_class))
+
+        self.hmm_set.append(GMMHMM(n_components=self.n_states,
+                              n_mix=self.n_mixtures,
+                              verbose=True,
+                              n_iter=4) for _ in range(self.n_class))
+
+        self.hmm_set.append(GMMHMM(n_components=self.n_states,
+                              n_mix=self.n_mixtures,
+                              verbose=True,
+                              n_iter=10) for _ in range(self.n_class))
 
         class_data = [[] for _ in range(self.n_class)]
         lengths = [[] for _ in range(self.n_class)]
