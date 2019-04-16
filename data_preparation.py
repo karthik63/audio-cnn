@@ -295,20 +295,20 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
                 print('couldnt load song')
 
 
-    np.save('data/indian_3_harris_X_train.npy', X_train)
-    np.save('data/indian_3_harris_Y_train.npy', Y_train)
-    np.save('data/indian_3_harris_X_test.npy', X_test)
-    np.save('data/indian_3_harris_Y_test.npy', Y_test)
+    np.save('data/esc_X_train.npy', X_train)
+    np.save('data/esc_Y_train.npy', Y_train)
+    np.save('data/esc_X_test.npy', X_test)
+    np.save('data/esc_Y_test.npy', Y_test)
 
     return X_train, X_test, Y_train, Y_test
 
 if __name__ == '__main__':
 
-    # X_train, X_test, Y_train, Y_test = extract_ts('../indian_3_harris_segmented')
+    X_train, X_test, Y_train, Y_test = extract_ts('esc')
 
     # extract_ts_multiple('../indian_4_sana_segmented')
 
-    extract_ts_multiple_binned_test('../indian_4_sana_segmented', 'data/indian_4_sana_segmented', train=True)
+    # extract_ts_multiple_binned_test('../indian_4_sana_segmented', 'data/indian_4_sana_segmented', train=True)
     # extract_ts_multiple_binned_test('indian_fake', 'data/indian_4_sana_segmented', train=False)
 
     print('oo')

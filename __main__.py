@@ -485,7 +485,9 @@ class GenreCNN:
                 output_tensor = tf.constant(outputs)
                 labels_tensor = tf.constant(np.eye(self.n_classes, dtype=np.float32)[Y_te.astype(np.int32)])
 
-                test_loss = sess.run(-tf.reduce_mean(labels_tensor * tf.log(output_tensor + 1e-5)))
+                test_loss = sess.run(-tf.reduce_mean(labels_tensor * tf.log(tf.abs(output_tensor + 1e-5))))
+
+                print(test_loss)
 
                 print(prediction)
                 ac = self.get_accuracy(Y_te, prediction)
@@ -679,20 +681,20 @@ def main():
 
     bs = 5
 
-    X_tr = np.load('data/indian_4_sana_segmented_X_train.npy')
-    X_te = np.load('data/indian_4_sana_segmented_X_test.npy')
+    X_tr = np.load('data/esc_X_train.npy')
+    X_te = np.load('data/esc_X_test.npy')
 
-    Y_tr = np.load('data/indian_4_sana_segmented_Y_train.npy')
-    Y_te = np.load('data/indian_4_sana_segmented_Y_test.npy')
+    Y_tr = np.load('data/esc_Y_train.npy')
+    Y_te = np.load('data/esc_Y_test.npy')
 
-    segment_count_te = np.load('data/indian_4_sana_segmented_segment_count_test.npy')
-    segment_count_tr = np.load('data/indian_4_sana_segmented_segment_count_train.npy')
+    # segment_count_te = np.load('data/indian_4_fake_segment_count_test.npy')
+    # segment_count_tr = np.load('data/indian_4_sana_segmented_segment_count_train.npy')
 
     cn = GenreCNN(batch_size=bs)
 
     n_te = Y_te.shape[0]
 
-    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_te)
+    cn.fit(X_tr, Y_tr, X_te, Y_te)
 
     # cn.build_model()
     cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
