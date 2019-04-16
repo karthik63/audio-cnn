@@ -13,6 +13,8 @@ from hmmlearn.hmm import GMMHMM
 from sklearn.mixture import *
 import sklearn
 
+np.random.seed(1234)
+
 print('something')
 
 class Audio_HMM():
@@ -92,7 +94,7 @@ class Audio_HMM():
         self.hmm_set.append(GMMHMM(n_components=self.n_states,
                               n_mix=self.n_mixtures,
                               verbose=True,
-                              n_iter=10) )
+                              n_iter=5) )
 
         self.hmm_set.append(GMMHMM(n_components=self.n_states,
                               n_mix=self.n_mixtures,
@@ -102,7 +104,7 @@ class Audio_HMM():
         self.hmm_set.append(GMMHMM(n_components=self.n_states,
                               n_mix=self.n_mixtures,
                               verbose=True,
-                              n_iter=10) )
+                              n_iter=5) )
 
         print(self.hmm_set)
 
