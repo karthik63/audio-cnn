@@ -580,7 +580,7 @@ class GenreCNN:
 
             self.Y_train = np.eye(self.n_classes, dtype=np.float32)[self.Y_train.astype(np.int32)]
 
-            if Y_te != None:
+            if np.any(Y_te):
                 Y_te = self.get_lstm_data_Y(Y_te, segment_count_test)
 
         self.X_train, self.Y_train = self.shuffle(self.X_train, self.Y_train)
