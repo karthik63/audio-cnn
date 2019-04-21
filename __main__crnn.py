@@ -32,8 +32,10 @@ class GenreCNN:
                  lstm_input_size=500,
                  lstm_batch_size=10,
                  max_itrns_lstm=1000,
-                 use_cuda=False):
+                 use_cuda=False,
+                 cached=True):
 
+        self.cached = cached
         self.use_cuda = use_cuda
         self.log_path_train = os.path.join(log_path,'train')
         self.log_path_validation = os.path.join(log_path,'validation')
@@ -466,7 +468,7 @@ class GenreCNN:
                 print(' * saaved * ', ei)
                 self.saver.save(sess, os.path.join(self.save_path, 'model.ckpt'),global_step=ei)
 
-            if (ei + 1) % 2 == 0:
+            if (ei + 1) % 120 == 0:
 
                 train_predictions = np.array(train_predictions)
                 train_correct_labels = np.array(train_correct_labels)
@@ -496,7 +498,7 @@ class GenreCNN:
                 train_correct_labels = []
                 train_predictions = []
 
-            if (ei + 1) % 2 == 0 and np.any(X_te) and np.any(Y_te):
+            if (ei + 1) % 120 == 0 and np.any(X_te) and np.any(Y_te):
 
                 if not self.test_songwise:
                     outputs = self.output(X_te)
