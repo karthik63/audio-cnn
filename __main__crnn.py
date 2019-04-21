@@ -213,7 +213,7 @@ class GenreCNN:
 
             input_masked = Masking()(self.input_batch_lstm)
 
-            lstm_out = LSTM(100)(input_masked)
+            lstm_out = LSTM(100, activation='relu')(input_masked)
 
             print(lstm_out)
 
@@ -334,15 +334,15 @@ class GenreCNN:
             if self.use_cuda:
                 LSTMModel = CuDNNLSTM
 
-            lstm2 = LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4)
+            lstm2 = tf.keras.activations.relu(LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4))
 
-            lstm2 = LSTMModel(100, name='vk_lstm_2')(lstm2)
+            lstm2 = tf.keras.activations.relu(LSTMModel(100, name='vk_lstm_2')(lstm2))
 
             print(pool4.get_shape())
 
-            fc1 = tf.keras.layers.Dense(50)(lstm2)
+            fc1 = tf.keras.layers.Dense(50, activation='relu')(lstm2)
 
-            class_scores = tf.keras.layers.Dense(self.n_classes)(fc1)
+            class_scores = tf.keras.layers.Dense(self.n_classes, activation='relu')(fc1)
 
             self.pool4 = fc1
 
@@ -746,7 +746,7 @@ def main():
 
     bs = 5
 
-    name = 'data/indian_4_sana_segmented'
+    name = 'data/indian_4_fake'
 
     X_tr = np.load(name + '_X_train.npy')
     X_te = np.load(name + '_X_test.npy')
