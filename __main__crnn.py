@@ -12,6 +12,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Masking, Dense, Input, LSTM
 from tensorflow.keras.layers import CuDNNLSTM
 from tensorflow.core.protobuf import rewriter_config_pb2
+import datetime
 
 from data_preparation import *
 np.random.seed(1234)
@@ -35,10 +36,12 @@ class GenreCNN:
                  use_cuda=True,
                  cached=True):
 
+        log_path = log_path + '/' + datetime.datetime.now().isoformat()
         self.cached = cached
         self.use_cuda = use_cuda
         self.log_path_train = os.path.join(log_path,'train')
         self.log_path_validation = os.path.join(log_path,'validation')
+        self.log_path_songwise = os.path.join(log_path,'songwise')
         self.max_itrns_lstm = max_itrns_lstm
         self.max_sequence_length = None
         self.lstm_batch_size = lstm_batch_size
@@ -331,9 +334,9 @@ class GenreCNN:
             if self.use_cuda:
                 LSTMModel = CuDNNLSTM
 
-            lstm2 = LSTM(100, return_sequences=True, name='vk_lstm_1')(pool4)
+            lstm2 = LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4)
 
-            lstm2 = LSTM(100, name='vk_lstm_2')(lstm2)
+            lstm2 = LSTMModel(100, name='vk_lstm_2')(lstm2)
 
             print(pool4.get_shape())
 
@@ -363,12 +366,14 @@ class GenreCNN:
 
         self.train_summaries = []
         self.validation_summaries = []
+        self.songwise_summaries = []
         self.weight_summaries = []
 
         self.saver = tf.train.Saver(max_to_keep=4)
 
         self.train_writer = tf.summary.FileWriter(self.log_path_train)
         self.validation_writer = tf.summary.FileWriter(self.log_path_validation)
+        self.songwise_writer = tf.summary.FileWriter(self.log_path_songwise)
 
         self.summary = tf.Summary()
 
@@ -379,6 +384,10 @@ class GenreCNN:
 
         self.loss_placeholder = tf.placeholder(tf.float32, shape=())
         self.loss_summary = tf.summary.scalar('loss', self.loss_placeholder)
+
+        # self.songwise_accuracy_place_holder = tf.placeholder(tf.float32, shape=())
+        # self.songwise_microf_placeholder = tf.placeholder(tf.float32, shape=())
+        # self.songwise_macrof_place_holder = tf.placeholder(tf.float32, shape=())
 
         for variable in tf.trainable_variables():
             self.weight_summaries.append(tf.summary.histogram(variable.name, variable))
@@ -396,14 +405,18 @@ class GenreCNN:
         self.validation_summaries.append(smic)
         self.validation_summaries.append(self.loss_summary)
 
+        self.songwise_summaries.append(sacc)
+        self.songwise_summaries.append(smac)
+        self.songwise_summaries.append(smic)
 
         self.merged_summaries_train = tf.summary.merge(self.train_summaries)
         self.merged_summaries_validation = tf.summary.merge(self.validation_summaries)
         self.merged_summaries_weight = tf.summary.merge(self.weight_summaries)
+        self.merged_summaries_songwise = tf.summary.merge(self.songwise_summaries)
 
         print('boo')
 
-    def train(self, X_te=None, Y_te=None, segment_count_te=None,):
+    def train(self, X_te=None, Y_te=None, Y_te_songwise=None, segment_count_te=None,):
 
         # queue = tf.FIFOQueue(capacity=self.batch_size* 5, shapes=[(self.input_h, self.input_w, 1), self.n_classes],
         #                      dtypes=[tf.float32, tf.float32])
@@ -468,7 +481,7 @@ class GenreCNN:
                 print(' * saaved * ', ei)
                 self.saver.save(sess, os.path.join(self.save_path, 'model.ckpt'),global_step=ei)
 
-            if (ei + 1) % 120 == 0:
+            if (ei + 1) % 2 == 0:
 
                 train_predictions = np.array(train_predictions)
                 train_correct_labels = np.array(train_correct_labels)
@@ -498,15 +511,10 @@ class GenreCNN:
                 train_correct_labels = []
                 train_predictions = []
 
-            if (ei + 1) % 120 == 0 and np.any(X_te) and np.any(Y_te):
+            if (ei + 1) % 2 == 0 and np.any(X_te) and np.any(Y_te):
 
-                if not self.test_songwise:
-                    outputs = self.output(X_te)
-                    prediction = np.argmax(outputs, 1)
-
-                if self.test_songwise:
-                    outputs = self.output(X_te)
-                    prediction = self.get_songwise_prediction(outputs, segment_count_te)
+                outputs = self.output(X_te)
+                prediction = np.argmax(outputs, 1)
 
                 output_tensor = tf.constant(outputs)
                 labels_tensor = tf.constant(np.eye(self.n_classes, dtype=np.float32)[Y_te.astype(np.int32)])
@@ -538,6 +546,31 @@ class GenreCNN:
 
                 print(micro, ' micro')
                 print(macro, ' macro')
+
+                if self.test_songwise:
+                    prediction = self.get_songwise_prediction(outputs, segment_count_te)
+
+                    print(prediction)
+                    ac = self.get_accuracy(Y_te_songwise, prediction)
+                    print(ac)
+
+                    cm = self.get_cm(Y_te_songwise, prediction)
+                    print(cm)
+
+                    macro = sklearn.metrics.f1_score(Y_te_songwise, prediction, average='macro')
+                    micro = sklearn.metrics.f1_score(Y_te_songwise, prediction, average='micro')
+
+                    summaries_songwise = sess.run(self.merged_summaries_songwise,
+                                                    {self.accuracy_place_holder: ac,
+                                                     self.macrof_place_holder: macro,
+                                                     self.microf_placeholder: micro,
+                                                     }
+                                                    )
+
+                    self.songwise_writer.add_summary(summaries_songwise, ei)
+
+                    print(micro, ' micro')
+                    print(macro, ' macro')
 
         coord.request_stop()
         coord.join(enqueue_threads)
@@ -575,13 +608,11 @@ class GenreCNN:
 
         print('going to fit')
 
+        Y_te_songwise = None
+
         if self.test_songwise:
-            self.Y_train = self.get_lstm_data_Y(self.Y_train, segment_count_train)
-
-            self.Y_train = np.eye(self.n_classes, dtype=np.float32)[self.Y_train.astype(np.int32)]
-
             if np.any(Y_te):
-                Y_te = self.get_lstm_data_Y(Y_te, segment_count_test)
+                Y_te_songwise = self.get_lstm_data_Y(Y_te, segment_count_test)
 
         self.X_train, self.Y_train = self.shuffle(self.X_train, self.Y_train)
 
@@ -601,7 +632,7 @@ class GenreCNN:
         self.build_model()
 
         print('built')
-        self.train(X_te, Y_te, segment_count_test)
+        self.train(X_te, Y_te, Y_te_songwise, segment_count_test)
 
 
     def output(self, X):
