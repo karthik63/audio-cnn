@@ -223,7 +223,7 @@ class GenreCNN:
 
             self.lstm_output = dense_2
 
-            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=dense_2, labels=label_batch))
+            loss = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(logits=dense_2, labels=label_batch))
 
             continuous_loss_summary = tf.summary.scalar('lstm_continuous_loss', loss)
 
@@ -238,7 +238,7 @@ class GenreCNN:
             macrof_place_holder = tf.placeholder(tf.float32, shape=())
             loss_placeholder = tf.placeholder(tf.float32, shape=())
 
-            loss_summary = tf.summary.scalar('loss_lstm', loss_placeholder)
+            loss_summary = tf.summary.scalar('loss_lstm', loss_placeholder / self.lstm_batch_size)
 
             lstm_train_summaries.append(tf.summary.scalar('ac_lstm', accuracy_placeholder))
             lstm_train_summaries.append(tf.summary.scalar('microf_lstm', microf_placeholder))
@@ -356,7 +356,7 @@ class GenreCNN:
         #
         #     ans = sess.run(a_shape, feed_dict={input: a})
 
-        self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=self.class_scores, labels=self.label_batch))
+        self.loss = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(logits=self.class_scores, labels=self.label_batch))
 
         self.global_step = tf.Variable(0, trainable=False)
 
@@ -464,7 +464,7 @@ class GenreCNN:
                                                      self.merged_summaries_weight, self.optimizer),
                                                     {self.input_batch: in_b, self.label_batch: l_b})
 
-            loss_summary = sess.run(self.loss_summary, {self.loss_placeholder: loss})
+            loss_summary = sess.run(self.loss_summary, {self.loss_placeholder: loss / self.batch_size})
 
             self.train_writer.add_summary(weight_summary, ei)
             self.train_writer.add_summary(loss_summary, ei)
