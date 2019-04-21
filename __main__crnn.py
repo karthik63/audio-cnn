@@ -476,6 +476,7 @@ class GenreCNN:
             train_correct_labels.extend(final_labels)
 
             print("loss: {}, batch {}".format(loss, ei))
+            print(l_b)
 
             if ((ei + 1) % 1000 == 0):
                 print(' * saaved * ', ei)
