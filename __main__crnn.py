@@ -28,11 +28,11 @@ class GenreCNN:
                  n_classes=4,
                  save_path='saved_models_indian_4_sana_segmented_summary_finding_3',
                  log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs_3',
-                 test_songwise=False,
-                 lstm_input_size=500,
+                 test_songwise=True,
+                 lstm_input_size=50,
                  lstm_batch_size=10,
                  max_itrns_lstm=1000,
-                 use_cuda=False,
+                 use_cuda=True,
                  cached=True):
 
         self.cached = cached
