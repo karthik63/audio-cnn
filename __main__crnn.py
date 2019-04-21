@@ -24,7 +24,7 @@ class GenreCNN:
 
     def __init__(self, preprocess=False, class_names=None,
                  mel=True, stft=False,
-                 batch_size=5,
+                 batch_size=15,
                  max_itrns=3000,
                  n_classes=4,
                  save_path='saved_models_indian_4_sana_segmented_summary_finding_3',
@@ -334,15 +334,15 @@ class GenreCNN:
             if self.use_cuda:
                 LSTMModel = CuDNNLSTM
 
-            lstm2 = tf.keras.activations.relu(LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4))
+            lstm1 = tf.keras.activations.relu(LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4))
 
-            lstm2 = tf.keras.activations.relu(LSTMModel(100, name='vk_lstm_2')(lstm2))
+            lstm2 = tf.keras.activations.relu(LSTMModel(100, name='vk_lstm_2')(lstm1))
 
             print(pool4.get_shape())
 
             fc1 = tf.keras.layers.Dense(50, activation='relu')(lstm2)
 
-            class_scores = tf.keras.layers.Dense(self.n_classes, activation='relu')(fc1)
+            class_scores = tf.keras.layers.Dense(self.n_classes)(fc1)
 
             self.pool4 = fc1
 
@@ -744,9 +744,9 @@ def main():
 
     # hmm
 
-    bs = 5
+    bs = 15
 
-    name = 'data/indian_4_fake'
+    name = 'data/indian_4_sana_segmented'
 
     X_tr = np.load(name + '_X_train.npy')
     X_te = np.load(name + '_X_test.npy')
