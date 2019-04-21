@@ -477,6 +477,7 @@ class GenreCNN:
 
             print("loss: {}, batch {}".format(loss, ei))
             print(l_b)
+            print(final_layer)
 
             if ((ei + 1) % 1000 == 0):
                 print(' * saaved * ', ei)
