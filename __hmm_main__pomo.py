@@ -175,6 +175,11 @@ f.fit(X_train, Y_train)
 p = f.predict(X_test)
 print(p)
 print(f.get_accuracy(Y_test, p))
+macro = sklearn.metrics.f1_score(Y_test, p, average='macro')
+micro = sklearn.metrics.f1_score(Y_test, p, average='micro')
+
+print('macro', macro)
+print('micro', micro)
 
 # s = np.array([[1.0, 2,3,4],
 #               [5,6,7,8],
