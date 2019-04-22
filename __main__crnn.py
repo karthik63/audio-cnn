@@ -9,7 +9,7 @@ from tensorflow.python.training import optimizer
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Masking, Dense, Input, LSTM
+from tensorflow.keras.layers import Masking, Dense, Input, LSTM, GRU
 from tensorflow.keras.layers import CuDNNLSTM, CuDNNGRU
 from tensorflow.core.protobuf import rewriter_config_pb2
 import datetime
