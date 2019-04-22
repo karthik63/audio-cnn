@@ -18,7 +18,7 @@ np.random.seed(1234)
 print('something')
 
 class Audio_HMM():
-    def __init__(self, n_states=5, n_mixtures=1, feature='mfcc', n_freq=5, n_mfcc=20,
+    def __init__(self, n_states=15, n_mixtures=1, feature='mfcc', n_freq=5, n_mfcc=20,
                  sampling_rate=22050):
 
         self.n_states = n_states
@@ -75,7 +75,7 @@ class Audio_HMM():
         print(' doing something ')
 
         try:
-            X = np.load('X_mfcoc.npy')
+            X = np.load('X_mfcc.npy')
 
         except:
             X = self.extract_features(X)
