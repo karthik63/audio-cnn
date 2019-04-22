@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Masking, Dense, Input, LSTM
-from tensorflow.keras.layers import CuDNNLSTM
+from tensorflow.keras.layers import CuDNNLSTM, CuDNNGRU
 from tensorflow.core.protobuf import rewriter_config_pb2
 import datetime
 
@@ -70,6 +70,7 @@ class GenreCNN:
     def extract_spectrogram(ts_data, ):
         global tracking
         mel_sg = lb.feature.melspectrogram(ts_data)
+        mel_sg = lb.core.amplitude_to_db(mel_sg, ref=1.0) / 80
 
         if tracking:
             tracking = False
@@ -329,14 +330,14 @@ class GenreCNN:
 
             pool4 = tf.squeeze(pool4)
 
-            LSTMModel = LSTM
+            LSTMModel = GRU
 
             if self.use_cuda:
-                LSTMModel = CuDNNLSTM
+                LSTMModel = CuDNNGRU
 
-            lstm1 = tf.keras.activations.relu(LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4))
+            lstm1 = LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4)
 
-            lstm2 = tf.keras.activations.relu(LSTMModel(100, name='vk_lstm_2')(lstm1))
+            lstm2 = LSTMModel(100, name='vk_lstm_2')(lstm1)
 
             print(pool4.get_shape())
 
@@ -759,7 +760,7 @@ def main():
     segment_count_te = np.load(name + '_segment_count_test.npy')
     segment_count_tr = np.load(name + '_segment_count_train.npy')
 
-    cn = GenreCNN(batch_size=bs, use_cuda=True, save_path='saved_models_crnn',
+    cn = GenreCNN(batch_size=bs, use_cuda=True, save_path='saved_models_crnn_2',
                   log_path='logs_crnn')
 
     n_te = Y_te.shape[0]
