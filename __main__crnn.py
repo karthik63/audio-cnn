@@ -477,7 +477,7 @@ class GenreCNN:
             train_correct_labels.extend(final_labels)
 
             print("loss: {}, batch {}".format(loss, ei))
-            print(l_b)
+            print(np.max(in_b), np.min(in_b))
             print(final_layer)
 
             if ((ei + 1) % 1000 == 0):
