@@ -274,7 +274,7 @@ class GenreCNN:
                 _, loss_val = self.sess.run([optimize_step, loss],
                                        feed_dict={self.input_batch_lstm: in_b_run, label_batch: label_b_run})
 
-                ls = self.sess.run(loss_summary, {loss_placeholder: loss})
+                ls = self.sess.run(loss_summary, {loss_placeholder: loss_val / self.lstm_batch_size})
 
                 self.train_writer.add_summary(ls)
 

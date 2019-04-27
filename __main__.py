@@ -215,7 +215,7 @@ class GenreCNN:
 
             self.lstm_output = dense_2
 
-            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=dense_2, labels=label_batch))
+            loss = tf.reduce_sum(tf.nn.softmax_cross_entropy_with_logits(logits=dense_2, labels=label_batch))
 
             continuous_loss_summary = tf.summary.scalar('lstm_continuous_loss', loss)
 
@@ -265,7 +265,7 @@ class GenreCNN:
                 _, loss_val = self.sess.run([optimize_step, loss],
                                        feed_dict={self.input_batch_lstm: in_b_run, label_batch: label_b_run})
 
-                ls = self.sess.run(loss_summary, {loss_placeholder: loss})
+                ls = self.sess.run(loss_summary, {loss_placeholder: loss_val / self.lstm_batch_size})
 
                 self.train_writer.add_summary(ls)
 
