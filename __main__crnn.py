@@ -25,7 +25,7 @@ class GenreCNN:
     def __init__(self, preprocess=False, class_names=None,
                  mel=True, stft=False,
                  batch_size=15,
-                 max_itrns=3000,
+                 max_itrns=3120,
                  n_classes=4,
                  save_path='saved_models_indian_4_sana_segmented_summary_finding_3',
                  log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs_3',
@@ -765,9 +765,9 @@ def main():
 
     n_te = Y_te.shape[0]
 
-    # cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
+    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
 
-    cn.build_model()
+    # cn.build_model()
     cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
     prediction = cn.predict(X_te)
     ac = cn.get_accuracy(Y_te, prediction)
