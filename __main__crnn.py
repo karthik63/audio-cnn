@@ -765,7 +765,7 @@ def main():
 
     n_te = Y_te.shape[0]
 
-    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
+    # cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
 
     # cn.build_model()
     cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
