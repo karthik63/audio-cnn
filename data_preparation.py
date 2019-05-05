@@ -317,26 +317,26 @@ if __name__ == '__main__':
     print('oo')
 
 
-print('oo')
-base_directory = '/home/sam/storage/fyp/indian_4_sana_segmented/test'
-
-song1 = lb.load(os.path.join(base_directory, 'rahman', 'checkg24.wav'))[0]
-
-print(song1.shape)
-
-
-# S = lb.feature.melspectrogram(song1)
-S = np.abs(lb.core.stft(song1))
-
-plt.figure(figsize=(10, 4))
-lb.display.specshow(librosa.amplitude_to_db(S,
-                          ref=np.max),
-                          y_axis='linear', fmax=8000,
-                          x_axis='time')
-plt.colorbar(format='%+2.0f dB')
-plt.title('Linear frequency spectrogram')
-plt.tight_layout()
-
-plt.savefig('rahman_stft.pdf')
-plt.show()
+# print('oo')
+# base_directory = '/home/sam/storage/fyp/indian_4_sana_segmented/test'
+#
+# song1 = lb.load(os.path.join(base_directory, 'rahman', 'checkg24.wav'))[0]
+#
+# print(song1.shape)
+#
+#
+# # S = lb.feature.melspectrogram(song1)
+# S = np.abs(lb.core.stft(song1))
+#
+# plt.figure(figsize=(10, 4))
+# lb.display.specshow(librosa.amplitude_to_db(S,
+#                           ref=np.max),
+#                           y_axis='linear', fmax=8000,
+#                           x_axis='time')
+# plt.colorbar(format='%+2.0f dB')
+# plt.title('Linear frequency spectrogram')
+# plt.tight_layout()
+#
+# plt.savefig('rahman_stft.pdf')
+# plt.show()
 
