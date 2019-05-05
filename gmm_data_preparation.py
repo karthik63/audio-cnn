@@ -84,26 +84,26 @@ def extract_stft(base_directory, max_amplitude=300, hop_length=512, n_freq=13, s
 
 
 if __name__ == '__main__':
-    extract_stft('indian_4_fake_test')
+    extract_stft('indian_4_fake_test/test')
 
-    with open('song_stft_test.pkl', 'rb') as file:
-        songs = pickle.load(file)
-
-    for genre in songs.keys():
-
-        # print(songs[genre][0].shape)
-
-        print('max ', np.max(songs[genre][0]))
-        print('min ', np.min(songs[genre][0]))
-
-        print(songs[genre][0])
-
-        print(songs[genre][0][:,100].shape)
-        pp.bar(list(range(1,1026)), songs[genre][0][:,0])
-        pp.xlabel('Frequency bins', fontsize=20)
-        pp.ylabel('Amplitude', fontsize=20)
-        pp.savefig('freq_hist_' + genre + '.png')
-        pp.show()
+    # with open('song_stft_test.pkl', 'rb') as file:
+    #     songs = pickle.load(file)
+    #
+    # for genre in songs.keys():
+    #
+    #     # print(songs[genre][0].shape)
+    #
+    #     print('max ', np.max(songs[genre][0]))
+    #     print('min ', np.min(songs[genre][0]))
+    #
+    #     print(songs[genre][0])
+    #
+    #     print(songs[genre][0][:,100].shape)
+    #     pp.bar(list(range(1,1026)), songs[genre][0][:,0])
+    #     pp.xlabel('Frequency bins', fontsize=20)
+    #     pp.ylabel('Amplitude', fontsize=20)
+    #     pp.savefig('freq_hist_' + genre + '.png')
+    #     pp.show()
     #
     #     print(type(songs[genre][0][0][0]))
     #

@@ -211,9 +211,9 @@ X_test = np.load(name + '_X_test.npy')
 Y_train = np.load(name + '_Y_train.npy')
 Y_test = np.load(name + '_Y_test.npy')
 
-for feat in ['mfcc', 'mfcc_delta', 'chroma_cqt', 'chroma_cens']:
+for nn in [3, 6, 9, 12]:
     print('before instantiating')
-    f = Audio_HMM(feature=feat, n_states=5)
+    f = Audio_HMM(feature='mfcc', n_states=nn)
     print('before fitting')
     f.fit(X_train, Y_train)
     p = f.predict(X_test)

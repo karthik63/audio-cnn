@@ -62,6 +62,10 @@ class Model():
 
         self.index_to_genre = sorted(self.dataset_train.keys())
 
+
+        for gi, g in enumerate(self.index_to_genre):
+            self.genre_to_index[g] = gi
+
     def build_model(self):
 
         # print(self.dataset_train['jazz'][0].shape)
@@ -73,7 +77,7 @@ class Model():
         to_fit_amplitude = [[[[] for _ in range(self.n_bins)] for _ in range(self.n_freq)] for _ in range(self.n_classes)]
 
         for ci in range(self.n_classes):
-
+            print(ci)
             for song in self.dataset_train[self.index_to_genre[ci]]:
 
                 argsort = np.argsort(-song, 0)[:self.n_freq, :]
@@ -233,11 +237,20 @@ class Model():
         predictions = 0
         correct_predictions = 0
 
-        for genre in ['pig']:
+        p_list  = []
+        l_list = []
+
+        for gi, genre in enumerate(self.index_to_genre):
 
             for song in self.dataset_train[genre]:
 
                 p = self.predict(song)
+
+                p_val = self.genre_to_index[p]
+
+                p_list.append(p_val)
+                l_list.append(gi)
+
                 print(p)
                 predictions += 1
 
@@ -246,11 +259,15 @@ class Model():
 
                 print(correct_predictions / predictions)
 
+        print('acc', sklearn.metrics.accuracy_score(l_list, p_list))
+        print('macro', sklearn.metrics.f1_score(l_list, p_list, average='macro'))
+        print('micro', sklearn.metrics.f1_score(l_list, p_list, average='micro'))
+
 
 if __name__=='__main__':
     mod = Model()
-    # mod.build_model()
-    # mod.fit()
+    mod.build_model()
+    mod.fit()
     mod.test()
 
 
