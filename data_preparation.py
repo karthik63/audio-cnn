@@ -4,6 +4,7 @@ import librosa as lb
 import os
 import seaborn as sn
 import sklearn
+import librosa.display
 import matplotlib.pyplot as plt
 
 def extract_ts_multiple_binned_test(base_directory, save_path, train_ratio = .7, time_limit=661794, train=True):
@@ -302,9 +303,11 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
 
     return X_train, X_test, Y_train, Y_test
 
+
+
 if __name__ == '__main__':
 
-    X_train, X_test, Y_train, Y_test = extract_ts('esc')
+    # X_train, X_test, Y_train, Y_test = extract_ts('esc')
 
     # extract_ts_multiple('../indian_4_sana_segmented')
 
@@ -312,4 +315,28 @@ if __name__ == '__main__':
     # extract_ts_multiple_binned_test('indian_fake', 'data/indian_4_sana_segmented', train=False)
 
     print('oo')
+
+
+print('oo')
+base_directory = '/home/sam/storage/fyp/indian_4_sana_segmented/test'
+
+song1 = lb.load(os.path.join(base_directory, 'rahman', 'checkg24.wav'))[0]
+
+print(song1.shape)
+
+
+# S = lb.feature.melspectrogram(song1)
+S = np.abs(lb.core.stft(song1))
+
+plt.figure(figsize=(10, 4))
+lb.display.specshow(librosa.amplitude_to_db(S,
+                          ref=np.max),
+                          y_axis='linear', fmax=8000,
+                          x_axis='time')
+plt.colorbar(format='%+2.0f dB')
+plt.title('Linear frequency spectrogram')
+plt.tight_layout()
+
+plt.savefig('rahman_stft.pdf')
+plt.show()
 
