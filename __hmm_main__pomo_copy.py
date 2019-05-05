@@ -26,8 +26,8 @@ class Audio_HMM():
 
         #! TODO what is the correct error type here ?
 
-        # if feature not in ['mfcc', 'mfcc_v', 'mfcc_va', 'stft']:
-        #     raise ValueError('feature type must be among mfcc, mfcc_v, mfcc_va, stf ')
+        if feature not in ['mfcc', 'mfcc_v', 'mfcc_va', 'stft']:
+            raise ValueError('feature type must be among mfcc, mfcc_v, mfcc_va, stf ')
 
         self.feature = feature
         self.n_freq = n_freq
@@ -40,31 +40,8 @@ class Audio_HMM():
         return np.transpose(lb.feature.mfcc(y=X, sr=sr, n_mfcc=n_mfcc))
 
     @staticmethod
-    def extract_chroma_cens(X, sampling_rate, n_mfcc):
-        sr = sampling_rate
-        return np.transpose(lb.feature.chroma_cens(y=X, sr=sr))
-
-    @staticmethod
-    def extract_chroma_cqt(X, sampling_rate, n_mfcc):
-        sr = sampling_rate
-        return np.transpose(lb.feature.chroma_cqt(y=X, sr=sr))
-
-    @staticmethod
     def extract_stft(X):
         return np.transpose(np.abs(lb.core.stft(X)))
-
-    @staticmethod
-    def extract_mfcc_delta(X, sampling_rate, n_mfcc):
-        sr = sampling_rate
-        mfcc1 = lb.feature.mfcc(y=X, sr=sr, n_mfcc=13)
-        mfcc2 = librosa.feature.delta(mfcc1)
-        mfcc3 = librosa.feature.delta(mfcc1, order=2)
-
-        mfcc = np.vstack([mfcc1, mfcc2, mfcc3])
-
-
-        return np.transpose(mfcc)
-
 
     def extract_features(self, X):
         print(' * extracting features * ')
@@ -77,21 +54,6 @@ class Audio_HMM():
             extract_mfcc_vectorised = np.vectorize(self.extract_mfcc, otypes=[np.float64],
                                                signature='(a),(),()->(d,e)')
             X = extract_mfcc_vectorised(X, self.sampling_rate, self.n_mfcc)
-
-        if self.feature == 'chroma_cqt':
-            extract_chroma = np.vectorize(self.extract_chroma_cqt, otypes=[np.float64],
-                                                   signature='(a),(),()->(d,e)')
-            X = extract_chroma(X, self.sampling_rate, self.n_mfcc)
-
-        if self.feature == 'chroma_cens':
-            extract_chroma = np.vectorize(self.extract_chroma_cens, otypes=[np.float64],
-                                                   signature='(a),(),()->(d,e)')
-            X = extract_chroma(X, self.sampling_rate, self.n_mfcc)
-
-        if self.feature == 'mfcc_delta':
-            extract_mfd = np.vectorize(self.extract_mfcc_delta, otypes=[np.float64],
-                                          signature='(a),(),()->(d,e)')
-            X = extract_mfd(X, self.sampling_rate, 0)
 
         return X
 
@@ -112,13 +74,12 @@ class Audio_HMM():
 
         print(' doing something ')
 
-        # try:
-        #     X = np.load('X_mfcc.npy')
-        #
-        # except
+        try:
+            X = np.load('X_mfcc.npy')
 
-        X = self.extract_features(X)
-        np.save('X_mfcc.npy', X)
+        except:
+            X = self.extract_features(X)
+            np.save('X_mfcc.npy', X)
 
         print(' * finished extracting features * ')
 
@@ -183,8 +144,6 @@ class Audio_HMM():
         n_predictions = X.shape[0]
         predictions = np.zeros(n_predictions, np.int32)
 
-        print(X.shape)
-
         for i, data in enumerate(X):
             print('predicting ',i)
             temp_preds = []
@@ -203,30 +162,24 @@ class Audio_HMM():
 
         return acc
 
-name = 'data/indian_4_fake'
+X_train = np.load('data/indian_4_sana_segmented_X_train.npy')
+Y_train = np.load('data/indian_4_sana_segmented_Y_train.npy')
 
-X_train = np.load(name + '_X_train.npy')
-X_test = np.load(name + '_X_test.npy')
+X_test = np.load('data/indian_4_sana_segmented_X_test.npy')
+Y_test = np.load('data/indian_4_sana_segmented_Y_test.npy')
 
-Y_train = np.load(name + '_Y_train.npy')
-Y_test = np.load(name + '_Y_test.npy')
+print('before instantiating')
+f = Audio_HMM()
+print('before fitting')
+f.fit(X_train, Y_train)
+p = f.predict(X_test)
+print(p)
+print(f.get_accuracy(Y_test, p))
+macro = sklearn.metrics.f1_score(Y_test, p, average='macro')
+micro = sklearn.metrics.f1_score(Y_test, p, average='micro')
 
-for feat in ['mfcc', 'mfcc_delta', 'chroma_cqt', 'chroma_cens']:
-    print('before instantiating')
-    f = Audio_HMM(feature=feat, n_states=5)
-    print('before fitting')
-    f.fit(X_train, Y_train)
-    p = f.predict(X_test)
-    print(p)
-    print(f.get_accuracy(Y_test, p))
-    acc = sklearn.metrics.accuracy_score(Y_test, p)
-    macro = sklearn.metrics.f1_score(Y_test, p, average='macro')
-    micro = sklearn.metrics.f1_score(Y_test, p, average='micro')
-
-    print('feat')
-    print('accuracy', acc)
-    print('macro', macro)
-    print('micro', micro)
+print('macro', macro)
+print('micro', micro)
 
 # s = np.array([[1.0, 2,3,4],
 #               [5,6,7,8],
