@@ -747,7 +747,7 @@ def main():
 
     # hmm
 
-    bs = 4
+    bs = 10
 
     name = 'data/indian_4_sana_segmented'
 
