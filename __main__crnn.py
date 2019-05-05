@@ -284,7 +284,7 @@ class GenreCNN:
                     print(' * saaved * ', batch)
                     self.saver.save(self.sess, os.path.join(self.save_path + '_lstm', 'model.ckpt'), global_step=batch)
 
-                if (batch + 1) % 100 == 0 and np.any(X_test) and np.any(Y_test):
+                if (batch) % 20 == 0 and np.any(X_test) and np.any(Y_test):
 
                     prediction = self.predict_lstm(X_test)
 
@@ -484,7 +484,7 @@ class GenreCNN:
                 print(' * saaved * ', ei)
                 self.saver.save(sess, os.path.join(self.save_path, 'model.ckpt'),global_step=ei)
 
-            if (ei + 1) % 120 == 0:
+            if (ei) % 80 == 0:
 
                 train_predictions = np.array(train_predictions)
                 train_correct_labels = np.array(train_correct_labels)
@@ -514,7 +514,7 @@ class GenreCNN:
                 train_correct_labels = []
                 train_predictions = []
 
-            if (ei + 1) % 120 == 0 and np.any(X_te) and np.any(Y_te):
+            if (ei) % 80 == 0 and np.any(X_te) and np.any(Y_te):
 
                 outputs = self.output(X_te)
                 prediction = np.argmax(outputs, 1)
