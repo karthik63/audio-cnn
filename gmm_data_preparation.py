@@ -84,8 +84,8 @@ def extract_stft(base_directory, xname, max_amplitude=300, hop_length=512, n_fre
 
 
 if __name__ == '__main__':
-    extract_stft('data/indian_4_sana_segmented/train', 'sana_train.pkl')
-    extract_stft('data/indian_4_sana_segmented/test', 'sana_test.pkl')
+    extract_stft('../indian_4_sana_segmented/train', 'sana_train.pkl')
+    extract_stft('../indian_4_sana_segmented/test', 'sana_test.pkl')
 
     # with open('song_stft_test.pkl', 'rb') as file:
     #     songs = pickle.load(file)
