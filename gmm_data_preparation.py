@@ -79,12 +79,12 @@ def extract_stft(base_directory, max_amplitude=300, hop_length=512, n_freq=13, s
             real_songs[dir].append(song)
 
 
-    with open('song_stft.pkl', 'wb') as file:
+    with open('song_stft_test.pkl', 'wb') as file:
         pickle.dump(real_songs, file)
 
 
 if __name__ == '__main__':
-    extract_stft('indian_4_fake_test/test')
+    extract_stft('indian_4_fake/test')
 
     # with open('song_stft_test.pkl', 'rb') as file:
     #     songs = pickle.load(file)

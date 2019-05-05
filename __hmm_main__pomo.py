@@ -223,7 +223,7 @@ for nn in [3, 6, 9, 12]:
     macro = sklearn.metrics.f1_score(Y_test, p, average='macro')
     micro = sklearn.metrics.f1_score(Y_test, p, average='micro')
 
-    print(feat)
+    # print(feat)
     print('accuracy', acc)
     print('macro', macro)
     print('micro', micro)
