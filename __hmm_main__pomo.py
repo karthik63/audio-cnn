@@ -203,7 +203,7 @@ class Audio_HMM():
 
         return acc
 
-name = 'data/indian_4_fake'
+name = 'data/indian_4_sana_segmented'
 
 X_train = np.load(name + '_X_train.npy')
 X_test = np.load(name + '_X_test.npy')
