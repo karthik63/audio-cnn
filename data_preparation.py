@@ -296,10 +296,10 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
                 print('couldnt load song')
 
 
-    np.save('data/esc_X_train.npy', X_train)
-    np.save('data/esc_Y_train.npy', Y_train)
-    np.save('data/esc_X_test.npy', X_test)
-    np.save('data/esc_Y_test.npy', Y_test)
+    np.save('data/genre_X_train.npy', X_train)
+    np.save('data/genre_Y_train.npy', Y_train)
+    np.save('data/genre_X_test.npy', X_test)
+    np.save('data/genre_Y_test.npy', Y_test)
 
     return X_train, X_test, Y_train, Y_test
 
@@ -307,7 +307,7 @@ def extract_ts(base_directory, train_ratio = .7, time_limit=661794):
 
 if __name__ == '__main__':
 
-    # X_train, X_test, Y_train, Y_test = extract_ts('esc')
+    X_train, X_test, Y_train, Y_test = extract_ts('../more_data')
 
     # extract_ts_multiple('../indian_4_sana_segmented')
 
