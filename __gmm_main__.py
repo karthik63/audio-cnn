@@ -54,10 +54,10 @@ class Model():
         self.index_to_genre = None
         self.n_freq = n_freq
 
-        with open('song_stft.pkl', 'rb') as file:
+        with open('sana_train.pkl', 'rb') as file:
             self.dataset_train = pickle.load(file)
 
-        with open('song_stft_test.pkl', 'rb') as file:
+        with open('sana_test.pkl', 'rb') as file:
             self.dataset_test = pickle.load(file)
 
         self.index_to_genre = sorted(self.dataset_train.keys())

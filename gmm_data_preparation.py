@@ -32,7 +32,7 @@ def extract_MFCC(base_directory, hop_length=512, n_freq=13, sampling_rate=22050)
         pickle.dump(songs, file)
 
 
-def extract_stft(base_directory, max_amplitude=300, hop_length=512, n_freq=13, sampling_rate=22050):
+def extract_stft(base_directory, xname, max_amplitude=300, hop_length=512, n_freq=13, sampling_rate=22050):
 
     genres = []
 
@@ -79,12 +79,13 @@ def extract_stft(base_directory, max_amplitude=300, hop_length=512, n_freq=13, s
             real_songs[dir].append(song)
 
 
-    with open('song_stft_test.pkl', 'wb') as file:
+    with open(xname, 'wb') as file:
         pickle.dump(real_songs, file)
 
 
 if __name__ == '__main__':
-    extract_stft('indian_4_fake/test')
+    extract_stft('data/indian_4_sana_segmented/train', 'sana_train.pkl')
+    extract_stft('data/indian_4_sana_segmented/test', 'sana_test.pkl')
 
     # with open('song_stft_test.pkl', 'rb') as file:
     #     songs = pickle.load(file)
