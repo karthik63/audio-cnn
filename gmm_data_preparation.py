@@ -84,9 +84,9 @@ def extract_stft(base_directory, max_amplitude=300, hop_length=512, n_freq=13, s
 
 
 if __name__ == '__main__':
-    extract_stft('esc')
+    extract_stft('indian_4_fake_test')
 
-    with open('song_stft.pkl', 'rb') as file:
+    with open('song_stft_test.pkl', 'rb') as file:
         songs = pickle.load(file)
 
     for genre in songs.keys():

@@ -27,7 +27,7 @@ class GenreCNN:
                  n_classes=4,
                  save_path='saved_models_indian_4_sana_segmented_summary_finding_3',
                  log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs_3',
-                 test_songwise=False,
+                 test_songwise=True,
                  lstm_input_size=500,
                  lstm_batch_size=10,
                  max_itrns_lstm=1000):
@@ -348,6 +348,7 @@ class GenreCNN:
         self.train_summaries = []
         self.validation_summaries = []
         self.weight_summaries = []
+        self.songwise_summaries = []
 
         self.saver = tf.train.Saver(max_to_keep=4)
 
@@ -380,10 +381,15 @@ class GenreCNN:
         self.validation_summaries.append(smic)
         self.validation_summaries.append(self.loss_summary)
 
+        self.songwise_summaries.append(sacc)
+        self.songwise_summaries.append(smac)
+        self.songwise_summaries.append(smic)
+
 
         self.merged_summaries_train = tf.summary.merge(self.train_summaries)
         self.merged_summaries_validation = tf.summary.merge(self.validation_summaries)
         self.merged_summaries_weight = tf.summary.merge(self.weight_summaries)
+        self.merged_summaries_songwise = tf.summary.merge(self.songwise_summaries)
 
         print('boo')
 

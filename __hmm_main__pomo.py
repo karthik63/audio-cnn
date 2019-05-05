@@ -223,7 +223,7 @@ for feat in ['mfcc', 'mfcc_delta', 'chroma_cqt', 'chroma_cens']:
     macro = sklearn.metrics.f1_score(Y_test, p, average='macro')
     micro = sklearn.metrics.f1_score(Y_test, p, average='micro')
 
-    print('feat')
+    print(feat)
     print('accuracy', acc)
     print('macro', macro)
     print('micro', micro)

@@ -43,7 +43,7 @@ import pickle
 
 class Model():
 
-    def __init__(self, prepare_data=False, hop_len=None, n_classes=3, n_bins=1025, n_t=1293, n_freq=9):
+    def __init__(self, prepare_data=False, hop_len=None, n_classes=4, n_bins=1025, n_t=1293, n_freq=9):
 
         self.prepare_data = prepare_data
         self.n_classes = n_classes
@@ -245,6 +245,7 @@ class Model():
                     correct_predictions += 1
 
                 print(correct_predictions / predictions)
+
 
 if __name__=='__main__':
     mod = Model()

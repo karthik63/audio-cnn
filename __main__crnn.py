@@ -310,42 +310,31 @@ class GenreCNN:
                                [self.batch_size, self.n_classes])
 
         with tf.variable_scope('CNN_genre'):
+            conv1 = tf.keras.layers.Conv2D(128, (3, 3), activation=tf.keras.activations.relu, padding='same')(
+                self.input_batch)
 
-            conv1 = tf.keras.layers.Conv2D(128, (3, 3), activation=tf.keras.activations.relu, padding='same')(self.input_batch)
-
-            pool1 = tf.keras.layers.MaxPool2D((2, 2), padding='same')(conv1)
+            pool1 = tf.keras.layers.MaxPool2D((2, 4), padding='same')(conv1)
 
             conv2 = tf.keras.layers.Conv2D(384, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool1)
 
-            pool2 = tf.keras.layers.MaxPool2D((2, 2), padding='same')(conv2)
+            pool2 = tf.keras.layers.MaxPool2D((4, 5), padding='same')(conv2)
 
             conv3 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool2)
 
-            pool3 = tf.keras.layers.MaxPool2D((3, 3), padding='same')(conv3)
+            pool3 = tf.keras.layers.MaxPool2D((3, 8), padding='same')(conv3)
 
             conv4 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu,
-                                           strides=(3,3), padding='same')(pool3)
+                                           strides=(3, 3), padding='same')(pool3)
 
-            pool4 = tf.keras.layers.MaxPool2D((4, 2), padding='same')(conv4)
+            pool4 = tf.keras.layers.MaxPool2D((2, 3), padding='same')(conv4)
 
             pool4 = tf.squeeze(pool4)
 
-            LSTMModel = GRU
-
-            if self.use_cuda:
-                LSTMModel = CuDNNGRU
-
-            lstm1 = LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4)
-
-            lstm2 = LSTMModel(100, name='vk_lstm_2')(lstm1)
-
             print(pool4.get_shape())
 
-            fc1 = tf.keras.layers.Dense(50, activation='relu')(lstm2)
+            class_scores = tf.keras.layers.Dense(self.n_classes)(pool4)
 
-            class_scores = tf.keras.layers.Dense(self.n_classes)(fc1)
-
-            self.pool4 = fc1
+            self.pool4 = pool4
 
             self.class_scores = class_scores
 
