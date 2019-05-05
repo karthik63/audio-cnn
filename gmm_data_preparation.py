@@ -50,7 +50,11 @@ def extract_stft(base_directory, xname, max_amplitude=300, hop_length=512, n_fre
 
         songs[dir] = []
 
-        for song in os.listdir(path):
+        for songid, song in enumerate(os.listdir(path)):
+
+            # if songid > 20:
+            #     break
+
             song_timeseries = lb.load(os.path.join(path, song))[0]
             stft = lb.core.stft(y=song_timeseries)
 

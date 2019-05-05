@@ -756,8 +756,8 @@ def main():
 
     cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
 
-    # cn.build_model()
-    cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
+    cn.build_model()
+    # cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
     prediction = cn.predict(X_te)
     ac = cn.get_accuracy(Y_te, prediction)
 

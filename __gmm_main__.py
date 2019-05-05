@@ -43,7 +43,7 @@ import pickle
 
 class Model():
 
-    def __init__(self, prepare_data=False, hop_len=None, n_classes=4, n_bins=1025, n_t=1293, n_freq=9):
+    def __init__(self, prepare_data=False, hop_len=None, n_classes=4, n_bins=513, n_t=1293, n_freq=9):
 
         self.prepare_data = prepare_data
         self.n_classes = n_classes
@@ -54,17 +54,21 @@ class Model():
         self.index_to_genre = None
         self.n_freq = n_freq
 
-        with open('sana_train.pkl', 'rb') as file:
-            self.dataset_train = pickle.load(file)
-
-        with open('sana_test.pkl', 'rb') as file:
-            self.dataset_test = pickle.load(file)
-
-        self.index_to_genre = sorted(self.dataset_train.keys())
+        name = 'data/indian_4_sana_segmented'
+        # name = 'data/esc'
 
 
-        for gi, g in enumerate(self.index_to_genre):
-            self.genre_to_index[g] = gi
+
+        self.X_train = np.load(name + '_X_train.npy')
+        self.X_test = np.load(name + '_X_test.npy')
+
+        self.Y_train = np.load(name + '_Y_train.npy')
+        self.Y_test = np.load(name + '_Y_test.npy')
+
+        p = numpy.random.permutation(len(self.Y_test))
+
+        self.X_test = self.X_test[p]
+        self.Y_test = self.Y_test[p]
 
     def build_model(self):
 
@@ -78,32 +82,39 @@ class Model():
 
         for ci in range(self.n_classes):
             print(ci)
-            for song in self.dataset_train[self.index_to_genre[ci]]:
+            for si, song in enumerate(self.X_train):
 
-                argsort = np.argsort(-song, 0)[:self.n_freq, :]
+                print(ci,si)
+                if self.Y_train[si] == ci:
 
-                dominant_frequencies = np.transpose(argsort)
-                dominant_amplitudes = np.transpose(-np.sort(-song, 0)[:self.n_freq, :])
+                    stft = lb.core.stft(y=song, n_fft=1024)
 
-                print(dominant_amplitudes)
+                    song = np.abs(stft).astype(np.float32)
 
-                for ti in range(dominant_frequencies.shape[0] - 1):
-                    frequency_tally[ci, dominant_frequencies[ti][0]] += 1
+                    argsort = np.argsort(-song, 0)[:self.n_freq, :]
 
-                    for fi in range(self.n_freq - 1):
+                    dominant_frequencies = np.transpose(argsort)
+                    dominant_amplitudes = np.transpose(-np.sort(-song, 0)[:self.n_freq, :])
 
-                        # if dominant_frequency1[i] == 186:
-                        #     print(dominant_frequency1[i+1])
+                    # print(dominant_amplitudes)
 
-                        # print(dominant_frequency1[i], dominant_frequency1[i+1])
+                    for ti in range(dominant_frequencies.shape[0] - 1):
+                        frequency_tally[ci, dominant_frequencies[ti][0]] += 1
 
-                        # print(to_fit[k][dominant_frequency1[i]])
+                        for fi in range(self.n_freq - 1):
 
-                        # print(to_fit[k][dominant_frequency1[i]])
+                            # if dominant_frequency1[i] == 186:
+                            #     print(dominant_frequency1[i+1])
 
-                        to_fit_time[ci][fi][dominant_frequencies[ti][fi]].append(dominant_frequencies[ti+1][fi])
-                        to_fit_freq[ci][fi][dominant_frequencies[ti][fi]].append(dominant_frequencies[ti][fi+1])
-                        to_fit_amplitude[ci][fi][dominant_frequencies[ti][fi]].append(dominant_amplitudes[ti][fi])
+                            # print(dominant_frequency1[i], dominant_frequency1[i+1])
+
+                            # print(to_fit[k][dominant_frequency1[i]])
+
+                            # print(to_fit[k][dominant_frequency1[i]])
+
+                            to_fit_time[ci][fi][dominant_frequencies[ti][fi]].append(dominant_frequencies[ti+1][fi])
+                            to_fit_freq[ci][fi][dominant_frequencies[ti][fi]].append(dominant_frequencies[ti][fi+1])
+                            to_fit_amplitude[ci][fi][dominant_frequencies[ti][fi]].append(dominant_amplitudes[ti][fi])
 
 
 
@@ -145,6 +156,8 @@ class Model():
             for domi_i in range(self.n_freq):
                 for freq_i in range(self.n_bins):
 
+                    print(class_i, domi_i, freq_i)
+
                     if len(self.to_fit_freq[class_i][domi_i][freq_i]) < 2:
                         self.to_fit_freq[class_i][domi_i][freq_i].append(freq_i)
                         self.to_fit_freq[class_i][domi_i][freq_i].append(freq_i)
@@ -174,6 +187,10 @@ class Model():
             pickle.dump([self.de_time, self.de_freq, self.de_amplitude], file)
 
     def predict(self, song):
+
+        stft = lb.core.stft(y=song,n_fft=1024)
+
+        song = np.abs(stft).astype(np.float32)
 
         try:
             _ = self.de_time == 1
@@ -240,28 +257,26 @@ class Model():
         p_list  = []
         l_list = []
 
-        for gi, genre in enumerate(self.index_to_genre):
+        for i, song in enumerate(self.X_test[::-1]):
 
-            for song in self.dataset_train[genre]:
+            p = self.predict(song)
 
-                p = self.predict(song)
+            p_list.append(p)
+            l_list.append(self.Y_test[i])
 
-                p_val = self.genre_to_index[p]
+            print('predict ', p)
+            print('label ', self.Y_test[i])
 
-                p_list.append(p_val)
-                l_list.append(gi)
+            predictions += 1
 
-                print(p)
-                predictions += 1
+            if(p == self.Y_test[i]):
+                correct_predictions += 1
 
-                if(p == genre):
-                    correct_predictions += 1
+            print(correct_predictions / predictions)
 
-                print(correct_predictions / predictions)
-
-        print('acc', sklearn.metrics.accuracy_score(l_list, p_list))
-        print('macro', sklearn.metrics.f1_score(l_list, p_list, average='macro'))
-        print('micro', sklearn.metrics.f1_score(l_list, p_list, average='micro'))
+            print('acc', sklearn.metrics.accuracy_score(l_list, p_list))
+            print('macro', sklearn.metrics.f1_score(l_list, p_list, average='macro'))
+            print('micro', sklearn.metrics.f1_score(l_list, p_list, average='micro'))
 
 
 if __name__=='__main__':
