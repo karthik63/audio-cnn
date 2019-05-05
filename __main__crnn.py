@@ -749,8 +749,8 @@ def main():
     segment_count_te = np.load(name + '_segment_count_test.npy')
     segment_count_tr = np.load(name + '_segment_count_train.npy')
 
-    cn = GenreCNN(batch_size=bs, use_cuda=True, save_path='crnn_saved_model_bs10',
-                  log_path='crnn_logs_final')
+    cn = GenreCNN(batch_size=bs, use_cuda=True, save_path='cnn_saved_model_bs10',
+                  log_path='cnn_logs_final')
 
     n_te = Y_te.shape[0]
 
