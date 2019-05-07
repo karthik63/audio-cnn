@@ -250,6 +250,8 @@ class GenreCNN:
             lstm_validation_summaries.append(tf.summary.scalar('macro_f_lstm', macrof_place_holder))
             lstm_validation_summaries.append(loss_summary)
 
+            self.merged_lstm_summaries_validation = tf.summary.merge(self.lstm_validation_summaries)
+
             queue = tf.RandomShuffleQueue(capacity=self.lstm_batch_size * 5,
                                           shapes=[(self.max_sequence_length, self.lstm_input_size), self.n_classes],
                                           dtypes=[tf.float32, tf.float32], min_after_dequeue=self.lstm_batch_size * 2)
@@ -298,7 +300,7 @@ class GenreCNN:
                     microf = sklearn.metrics.f1_score(Y_test, prediction, average='micro')
                     macrof = sklearn.metrics.f1_score(Y_test, prediction, average='macro')
 
-                    t = self.sess.run(lstm_validation_summaries,
+                    t = self.sess.run(self.merged_lstm_summaries_validation,
                                   {accuracy_placeholder: ac,
                                    microf_placeholder: microf,
                                        macrof_place_holder: macrof,
