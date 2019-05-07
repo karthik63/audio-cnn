@@ -298,10 +298,15 @@ class GenreCNN:
                     microf = sklearn.metrics.f1_score(Y_test, prediction, average='micro')
                     macrof = sklearn.metrics.f1_score(Y_test, prediction, average='macro')
 
-                    self.sess.run(lstm_validation_summaries,
+                    t = self.sess.run(lstm_validation_summaries,
                                   {accuracy_placeholder: ac,
                                    microf_placeholder: microf,
-                                       macrof_place_holder: macrof})
+                                       macrof_place_holder: macrof,
+                                   loss_placeholder: 0.0})
+
+                    self.validation_writer.add_summary(t, batch)
+
+
 
             coord.request_stop()
             coord.join(enqueue_threads)
