@@ -296,7 +296,7 @@ class GenreCNN:
                     print(cm)
 
                     microf = sklearn.metrics.f1_score(Y_test, prediction, average='micro')
-                    macrof = print(sklearn.metrics.f1_score(Y_test, prediction, average='macro')
+                    macrof = sklearn.metrics.f1_score(Y_test, prediction, average='macro')
 
                     self.sess.run(lstm_validation_summaries,
                                   {accuracy_placeholder: ac,
