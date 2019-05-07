@@ -329,6 +329,20 @@ class GenreCNN:
 
             self.class_scores = class_scores
 
+            total_parameters = 0
+            for variable in tf.trainable_variables():
+                # shape is an array of tf.Dimension
+                shape = variable.get_shape()
+                print(shape)
+                print(len(shape))
+                variable_parameters = 1
+                for dim in shape:
+                    print(dim)
+                    variable_parameters *= dim.value
+                print(variable_parameters)
+                total_parameters += variable_parameters
+            print(total_parameters)
+
         # with tf.Session() as sess:
         #
         #     sess.run(tf.global_variables_initializer())
@@ -692,31 +706,31 @@ def main():
 
     # hmm
 
-    bs = 5
+    bs = 2
 
-    name = 'data/indian_4_sana_segmented'
+    # name = 'data/indian_4_fake'
+    #
+    # X_tr = np.load(name + '_X_train.npy')
+    # X_te = np.load(name + '_X_test.npy')
+    #
+    # Y_tr = np.load(name + '_Y_train.npy')
+    # Y_te = np.load(name + '_Y_test.npy')
 
-    X_tr = np.load(name + '_X_train.npy')
-    X_te = np.load(name + '_X_test.npy')
-
-    Y_tr = np.load(name + '_Y_train.npy')
-    Y_te = np.load(name + '_Y_test.npy')
-
-    segment_count_te = np.load(name + '_segment_count_test.npy')
-    segment_count_tr = np.load(name + '_segment_count_train.npy')
+    # segment_count_te = np.load(name + '_segment_count_test.npy')
+    # segment_count_tr = np.load(name + '_segment_count_train.npy')
 
     cn = GenreCNN(batch_size=bs)
 
-    n_te = Y_te.shape[0]
+    # n_te = Y_te.shape[0]
+    #
+    # cn.fit(X_tr, Y_tr, X_te, Y_te, None, None)
 
-    cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
-
-    # cn.build_model()
-    cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
-    prediction = cn.predict(X_te)
-    ac = cn.get_accuracy(Y_te, prediction)
-
-    cm = cn.get_cm(Y_te, prediction)
+    cn.build_model()
+    # cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, None, None)
+    # prediction = cn.predict(X_te)
+    # ac = cn.get_accuracy(Y_te, prediction)
+    #
+    # cm = cn.get_cm(Y_te, prediction)
 
     print(cm)
 

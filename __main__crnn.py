@@ -295,8 +295,13 @@ class GenreCNN:
                     cm = self.get_cm(Y_test, prediction)
                     print(cm)
 
-                    print(sklearn.metrics.f1_score(Y_test, prediction, average='micro'), ' micro')
-                    print(sklearn.metrics.f1_score(Y_test, prediction, average='macro'), ' macro')
+                    microf = sklearn.metrics.f1_score(Y_test, prediction, average='micro')
+                    macrof = print(sklearn.metrics.f1_score(Y_test, prediction, average='macro')
+
+                    self.sess.run(lstm_validation_summaries,
+                                  {accuracy_placeholder: ac,
+                                   microf_placeholder: microf,
+                                       macrof_place_holder: macrof})
 
             coord.request_stop()
             coord.join(enqueue_threads)
@@ -313,30 +318,57 @@ class GenreCNN:
             conv1 = tf.keras.layers.Conv2D(128, (3, 3), activation=tf.keras.activations.relu, padding='same')(
                 self.input_batch)
 
-            pool1 = tf.keras.layers.MaxPool2D((2, 4), padding='same')(conv1)
+            pool1 = tf.keras.layers.MaxPool2D((2, 2), padding='same')(conv1)
 
             conv2 = tf.keras.layers.Conv2D(384, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool1)
 
-            pool2 = tf.keras.layers.MaxPool2D((4, 5), padding='same')(conv2)
+            pool2 = tf.keras.layers.MaxPool2D((2, 2), padding='same')(conv2)
 
             conv3 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool2)
 
-            pool3 = tf.keras.layers.MaxPool2D((3, 8), padding='same')(conv3)
+            pool3 = tf.keras.layers.MaxPool2D((3, 3), padding='same')(conv3)
 
             conv4 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu,
                                            strides=(3, 3), padding='same')(pool3)
 
-            pool4 = tf.keras.layers.MaxPool2D((2, 3), padding='same')(conv4)
+            pool4 = tf.keras.layers.MaxPool2D((4, 2), padding='same')(conv4)
 
             pool4 = tf.squeeze(pool4)
 
+            LSTMModel = GRU
+
+            if self.use_cuda:
+                LSTMModel = CuDNNGRU
+
+            lstm1 = LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4)
+
+            lstm2 = LSTMModel(100, name='vk_lstm_2')(lstm1)
+
             print(pool4.get_shape())
 
-            class_scores = tf.keras.layers.Dense(self.n_classes)(pool4)
+            fc1 = tf.keras.layers.Dense(50, activation='relu')(lstm2)
 
-            self.pool4 = pool4
+            class_scores = tf.keras.layers.Dense(self.n_classes)(fc1)
+
+            self.pool4 = fc1
 
             self.class_scores = class_scores
+
+            total_parameters = 0
+            for variable in tf.trainable_variables():
+                # shape is an array of tf.Dimension
+                shape = variable.get_shape()
+                print(shape)
+                print(len(shape))
+                variable_parameters = 1
+                for dim in shape:
+                    print(dim)
+                    variable_parameters *= dim.value
+                print(variable_parameters)
+                total_parameters += variable_parameters
+            print(total_parameters)
+
+            print('oo')
 
         # with tf.Session() as sess:
         #
@@ -736,36 +768,36 @@ def main():
 
     # hmm
 
-    bs = 7
+    bs = 2
 
-    name = 'data/indian_4_sana_segmented'
-
-    X_tr = np.load(name + '_X_train.npy')
-    X_te = np.load(name + '_X_test.npy')
-
-    Y_tr = np.load(name + '_Y_train.npy')
-    Y_te = np.load(name + '_Y_test.npy')
-
-    segment_count_te = np.load(name + '_segment_count_test.npy')
-    segment_count_tr = np.load(name + '_segment_count_train.npy')
-
+    # name = 'data/indian_4_sana_segmented'
+    #
+    # X_tr = np.load(name + '_X_train.npy')
+    # X_te = np.load(name + '_X_test.npy')
+    #
+    # Y_tr = np.load(name + '_Y_train.npy')
+    # Y_te = np.load(name + '_Y_test.npy')
+    #
+    # segment_count_te = np.load(name + '_segment_count_test.npy')
+    # segment_count_tr = np.load(name + '_segment_count_train.npy')
+    #
     cn = GenreCNN(batch_size=bs, use_cuda=True, save_path='cnn_saved_model_bs10',
                   log_path='cnn_logs_final')
-
-    n_te = Y_te.shape[0]
+    #
+    # n_te = Y_te.shape[0]
 
     # cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
 
     cn.build_model()
-    cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
-    prediction = cn.predict(X_te)
-    ac = cn.get_accuracy(Y_te, prediction)
-
-    cm = cn.get_cm(Y_te, prediction)
-
-    print(cm)
-
-    print(ac)
+    # cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
+    # prediction = cn.predict(X_te)
+    # ac = cn.get_accuracy(Y_te, prediction)
+    #
+    # cm = cn.get_cm(Y_te, prediction)
+    #
+    # print(cm)
+    #
+    # print(ac)
 
 if __name__ == '__main__':
     main()
