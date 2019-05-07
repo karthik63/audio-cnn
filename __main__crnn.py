@@ -30,7 +30,7 @@ class GenreCNN:
                  save_path='saved_models_indian_4_sana_segmented_summary_finding_3',
                  log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs_3',
                  test_songwise=True,
-                 lstm_input_size=500,
+                 lstm_input_size=50,
                  lstm_batch_size=10,
                  max_itrns_lstm=1000,
                  use_cuda=True,
