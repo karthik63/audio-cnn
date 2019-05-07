@@ -30,7 +30,7 @@ class GenreCNN:
                  save_path='saved_models_indian_4_sana_segmented_summary_finding_3',
                  log_path ='saved_models_indian_4_sana_segmented_summary_finding_logs_3',
                  test_songwise=True,
-                 lstm_input_size=50,
+                 lstm_input_size=500,
                  lstm_batch_size=10,
                  max_itrns_lstm=1000,
                  use_cuda=True,
@@ -320,51 +320,33 @@ class GenreCNN:
 
     def build_model(self):
 
-        self.input_batch = tf.placeholder(np.float32,
-                               [self.batch_size, self.input_h, self.input_w, 1])
+        conv1 = tf.keras.layers.Conv2D(128, (3, 3), activation=tf.keras.activations.relu, padding='same')(
+            self.input_batch)
 
-        self.label_batch = tf.placeholder(np.float32,
-                               [self.batch_size, self.n_classes])
+        pool1 = tf.keras.layers.MaxPool2D((2, 4), padding='same')(conv1)
 
-        with tf.variable_scope('CNN_genre'):
-            conv1 = tf.keras.layers.Conv2D(128, (3, 3), activation=tf.keras.activations.relu, padding='same')(
-                self.input_batch)
+        conv2 = tf.keras.layers.Conv2D(384, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool1)
 
-            pool1 = tf.keras.layers.MaxPool2D((2, 2), padding='same')(conv1)
+        pool2 = tf.keras.layers.MaxPool2D((4, 5), padding='same')(conv2)
 
-            conv2 = tf.keras.layers.Conv2D(384, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool1)
+        conv3 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool2)
 
-            pool2 = tf.keras.layers.MaxPool2D((2, 2), padding='same')(conv2)
+        pool3 = tf.keras.layers.MaxPool2D((3, 8), padding='same')(conv3)
 
-            conv3 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool2)
+        conv4 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu,
+                                       strides=(3, 3), padding='same')(pool3)
 
-            pool3 = tf.keras.layers.MaxPool2D((3, 3), padding='same')(conv3)
+        pool4 = tf.keras.layers.MaxPool2D((2, 3), padding='same')(conv4)
 
-            conv4 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu,
-                                           strides=(3, 3), padding='same')(pool3)
+        pool4 = tf.squeeze(pool4)
 
-            pool4 = tf.keras.layers.MaxPool2D((4, 2), padding='same')(conv4)
+        print(pool4.get_shape())
 
-            pool4 = tf.squeeze(pool4)
+        class_scores = tf.keras.layers.Dense(self.n_classes)(pool4)
 
-            LSTMModel = GRU
+        self.pool4 = pool4
 
-            if self.use_cuda:
-                LSTMModel = CuDNNGRU
-
-            lstm1 = LSTMModel(100, return_sequences=True, name='vk_lstm_1')(pool4)
-
-            lstm2 = LSTMModel(100, name='vk_lstm_2')(lstm1)
-
-            print(pool4.get_shape())
-
-            fc1 = tf.keras.layers.Dense(50, activation='relu')(lstm2)
-
-            class_scores = tf.keras.layers.Dense(self.n_classes)(fc1)
-
-            self.pool4 = fc1
-
-            self.class_scores = class_scores
+        self.class_scores = class_scores
 
             total_parameters = 0
             for variable in tf.trainable_variables():
@@ -793,8 +775,8 @@ def main():
     segment_count_te = np.load(name + '_segment_count_test.npy')
     segment_count_tr = np.load(name + '_segment_count_train.npy')
 
-    cn = GenreCNN(batch_size=bs, use_cuda=True, save_path='crnn_saved_model_bs10',
-                  log_path='crnn_logs_final')
+    cn = GenreCNN(batch_size=bs, use_cuda=True, save_path='cnn_saved_model_bs10',
+                  log_path='cnn_logs_final')
     #
     # n_te = Y_te.shape[0]
 
