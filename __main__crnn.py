@@ -250,7 +250,7 @@ class GenreCNN:
             lstm_validation_summaries.append(tf.summary.scalar('macro_f_lstm', macrof_place_holder))
             lstm_validation_summaries.append(loss_summary)
 
-            self.merged_lstm_summaries_validation = tf.summary.merge(self.lstm_validation_summaries)
+            self.merged_lstm_summaries_validation = tf.summary.merge(lstm_validation_summaries)
 
             queue = tf.RandomShuffleQueue(capacity=self.lstm_batch_size * 5,
                                           shapes=[(self.max_sequence_length, self.lstm_input_size), self.n_classes],
