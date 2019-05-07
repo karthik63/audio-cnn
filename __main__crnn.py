@@ -300,6 +300,11 @@ class GenreCNN:
                     microf = sklearn.metrics.f1_score(Y_test, prediction, average='micro')
                     macrof = sklearn.metrics.f1_score(Y_test, prediction, average='macro')
 
+                    print()
+
+                    print(microf, macrof, ac)
+                    print(datetime.datetime.now())
+
                     t = self.sess.run(self.merged_lstm_summaries_validation,
                                   {accuracy_placeholder: ac,
                                    microf_placeholder: microf,

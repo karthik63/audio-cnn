@@ -54,7 +54,7 @@ class Model():
         self.index_to_genre = None
         self.n_freq = n_freq
 
-        name = 'data/genre'
+        name = 'data/esc'
         # name = 'data/esc'
 
 
