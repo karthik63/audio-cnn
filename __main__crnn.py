@@ -320,33 +320,41 @@ class GenreCNN:
 
     def build_model(self):
 
-        conv1 = tf.keras.layers.Conv2D(128, (3, 3), activation=tf.keras.activations.relu, padding='same')(
-            self.input_batch)
+        self.input_batch = tf.placeholder(np.float32,
+                                          [self.batch_size, self.input_h, self.input_w, 1])
 
-        pool1 = tf.keras.layers.MaxPool2D((2, 4), padding='same')(conv1)
+        self.label_batch = tf.placeholder(np.float32,
+                                          [self.batch_size, self.n_classes])
 
-        conv2 = tf.keras.layers.Conv2D(384, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool1)
+        with tf.variable_scope('CNN_genre'):
 
-        pool2 = tf.keras.layers.MaxPool2D((4, 5), padding='same')(conv2)
+            conv1 = tf.keras.layers.Conv2D(128, (3, 3), activation=tf.keras.activations.relu, padding='same')(
+                self.input_batch)
 
-        conv3 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool2)
+            pool1 = tf.keras.layers.MaxPool2D((2, 4), padding='same')(conv1)
 
-        pool3 = tf.keras.layers.MaxPool2D((3, 8), padding='same')(conv3)
+            conv2 = tf.keras.layers.Conv2D(384, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool1)
 
-        conv4 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu,
-                                       strides=(3, 3), padding='same')(pool3)
+            pool2 = tf.keras.layers.MaxPool2D((4, 5), padding='same')(conv2)
 
-        pool4 = tf.keras.layers.MaxPool2D((2, 3), padding='same')(conv4)
+            conv3 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu, padding='same')(pool2)
 
-        pool4 = tf.squeeze(pool4)
+            pool3 = tf.keras.layers.MaxPool2D((3, 8), padding='same')(conv3)
 
-        print(pool4.get_shape())
+            conv4 = tf.keras.layers.Conv2D(500, (3, 3), activation=tf.keras.activations.relu,
+                                           strides=(3, 3), padding='same')(pool3)
 
-        class_scores = tf.keras.layers.Dense(self.n_classes)(pool4)
+            pool4 = tf.keras.layers.MaxPool2D((2, 3), padding='same')(conv4)
 
-        self.pool4 = pool4
+            pool4 = tf.squeeze(pool4)
 
-        self.class_scores = class_scores
+            print(pool4.get_shape())
+
+            class_scores = tf.keras.layers.Dense(self.n_classes)(pool4)
+
+            self.pool4 = pool4
+
+            self.class_scores = class_scores
 
             total_parameters = 0
             for variable in tf.trainable_variables():
