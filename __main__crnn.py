@@ -770,26 +770,26 @@ def main():
 
     bs = 2
 
-    # name = 'data/indian_4_sana_segmented'
-    #
-    # X_tr = np.load(name + '_X_train.npy')
-    # X_te = np.load(name + '_X_test.npy')
-    #
-    # Y_tr = np.load(name + '_Y_train.npy')
-    # Y_te = np.load(name + '_Y_test.npy')
-    #
-    # segment_count_te = np.load(name + '_segment_count_test.npy')
-    # segment_count_tr = np.load(name + '_segment_count_train.npy')
-    #
-    cn = GenreCNN(batch_size=bs, use_cuda=True, save_path='cnn_saved_model_bs10',
-                  log_path='cnn_logs_final')
+    name = 'data/indian_4_sana_segmented'
+
+    X_tr = np.load(name + '_X_train.npy')
+    X_te = np.load(name + '_X_test.npy')
+
+    Y_tr = np.load(name + '_Y_train.npy')
+    Y_te = np.load(name + '_Y_test.npy')
+
+    segment_count_te = np.load(name + '_segment_count_test.npy')
+    segment_count_tr = np.load(name + '_segment_count_train.npy')
+
+    cn = GenreCNN(batch_size=bs, use_cuda=True, save_path='crnn_saved_model_bs10',
+                  log_path='crnn_logs_final')
     #
     # n_te = Y_te.shape[0]
 
     # cn.fit(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
 
     cn.build_model()
-    # cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
+    cn.fit_lstm(X_tr, Y_tr, X_te, Y_te, segment_count_tr, segment_count_te)
     # prediction = cn.predict(X_te)
     # ac = cn.get_accuracy(Y_te, prediction)
     #
