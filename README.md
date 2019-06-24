@@ -1,3 +1,6 @@
-Audio
+### A COMPARISON OF TECHNIQUES FOR INDIAN POPMUSIC COMPOSER IDENTIFICATION
 
-Thesis : 
+Thesis : https://www.overleaf.com/read/kbwkyzpfnjng
+Presentation: https://www.overleaf.com/read/dnjfbkhbrffr
+
+
